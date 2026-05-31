@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "framer-motion": "latest",
     "lucide-react": "latest",
     "react": "latest",

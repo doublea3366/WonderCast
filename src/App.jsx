@@ -487,25 +487,58 @@ function App() {
     }));
   }
 
-  function createPreview() {
+  async function createPreview() {
     if (getSafetyBlock(settings)) return;
 
     setIsCreating(true);
     setShowScript(false);
-    window.setTimeout(() => {
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || "Generation failed");
+      }
+
+      const next = await response.json();
+      setPreview(next);
+      setEpisode(null);
+      setView("preview");
+    } catch (error) {
+      console.error("Failed to generate preview:", error);
+      // Fall back to local preview so the user isn't left stuck
       const next = makePreview(settings, previewVersion);
       setPreview(next);
       setEpisode(null);
-      setIsCreating(false);
       setView("preview");
-    }, 850);
+    } finally {
+      setIsCreating(false);
+    }
   }
 
-  function regeneratePreview() {
+  async function regeneratePreview() {
     const nextVersion = previewVersion + 1;
     setPreviewVersion(nextVersion);
-    setPreview(makePreview(settings, nextVersion));
     setShowScript(false);
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+
+      if (!response.ok) throw new Error("Regeneration failed");
+      const next = await response.json();
+      setPreview(next);
+    } catch {
+      setPreview(makePreview(settings, nextVersion));
+    }
   }
 
   function generateAudio() {
