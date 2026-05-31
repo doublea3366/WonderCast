@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BadgeCheck,
@@ -470,6 +470,8 @@ function App() {
   const [episode, setEpisode] = useState(null);
   const [savedEpisodes, setSavedEpisodes] = useState(starterEpisodes);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
   const [showScript, setShowScript] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
@@ -541,7 +543,10 @@ function App() {
     }
   }
 
-  function generateAudio() {
+  async function generateAudio() {
+    if (!preview) return;
+    setIsGeneratingAudio(true);
+
     const nextEpisode = {
       id: Date.now(),
       title: preview.title,
@@ -559,8 +564,27 @@ function App() {
       summary: preview.summary,
       date: "Just now",
     };
+
+    try {
+      const response = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: preview.script, voiceStyle: settings.voiceStyle }),
+      });
+
+      if (!response.ok) throw new Error("TTS failed");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+    } catch (error) {
+      console.error("TTS error:", error);
+      setAudioUrl(null);
+    }
+
     setEpisode(nextEpisode);
     setIsPlaying(false);
+    setIsGeneratingAudio(false);
     setView("listen");
   }
 
@@ -606,6 +630,7 @@ function App() {
               showScript={showScript}
               setShowScript={setShowScript}
               onGenerate={generateAudio}
+              isGeneratingAudio={isGeneratingAudio}
               onEdit={() => setView("create")}
               onRegenerate={regeneratePreview}
             />
@@ -615,6 +640,7 @@ function App() {
             <ListenScreen
               key="listen"
               episode={episode}
+              audioUrl={audioUrl}
               isPlaying={isPlaying}
               setIsPlaying={setIsPlaying}
               onSave={saveEpisode}
@@ -1068,6 +1094,7 @@ function PreviewScreen({
   showScript,
   setShowScript,
   onGenerate,
+  isGeneratingAudio,
   onEdit,
   onRegenerate,
 }) {
@@ -1098,10 +1125,14 @@ function PreviewScreen({
           <div className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
             <button
               onClick={onGenerate}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white shadow-sm"
+              disabled={isGeneratingAudio}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white shadow-sm disabled:bg-[#c7b8a5] disabled:cursor-not-allowed"
             >
-              Generate Audio
-              <ChevronRight size={18} />
+              {isGeneratingAudio ? (
+                <><RefreshCw className="animate-spin" size={18} /> Generating audio...</>
+              ) : (
+                <>Generate Audio <ChevronRight size={18} /></>
+              )}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
@@ -1196,6 +1227,7 @@ function LearningPoints({ title = "What your child will learn", points }) {
 
 function ListenScreen({
   episode,
+  audioUrl,
   isPlaying,
   setIsPlaying,
   onSave,
@@ -1206,6 +1238,7 @@ function ListenScreen({
     <motion.section {...fadeUp} className="mx-auto max-w-5xl pb-10">
       <AudioPlayerCard
         episode={episode}
+        audioUrl={audioUrl}
         isPlaying={isPlaying}
         setIsPlaying={setIsPlaying}
       />
@@ -1245,9 +1278,23 @@ function ListenScreen({
   );
 }
 
-function AudioPlayerCard({ episode, isPlaying, setIsPlaying }) {
+function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
+  const audioRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.play().catch(() => setIsPlaying(false));
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying]);
+
   return (
     <article className="rounded-[36px] border border-white/80 bg-[#211c16] p-6 text-white shadow-[0_28px_90px_rgba(33,28,22,0.28)] sm:p-8">
+      {audioUrl && (
+        <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
+      )}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-sm font-black text-[#ffe4aa]">

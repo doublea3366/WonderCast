@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
+    "elevenlabs": "^1.59.0",
     "framer-motion": "latest",
     "lucide-react": "latest",
     "react": "latest",
