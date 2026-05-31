@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   const minuteCount = parseInt(length) || 5;
   const wordCount = minuteCount * 130; // ~130 words per minute for kids audio
 
-  const systemPrompt = `You are WonderCast, a children's educational audio content creator. You write age-appropriate, engaging audio scripts for kids. You always use child-safe language, accurate facts, and warm encouraging tones. You never include anything scary, violent, sexual, or inappropriate for children. Your scripts are designed to be read aloud.`;
+  const systemPrompt = `You are WonderCast, a children's educational audio content creator. You write age-appropriate, engaging audio scripts for kids. You always use child-safe language, accurate facts, and warm encouraging tones. You never include anything scary, violent, sexual, or inappropriate for children. Your scripts are designed to be read aloud directly — write ONLY spoken words. Never include stage directions, narrator labels, sound effect notes, bracketed instructions, or any text that is not meant to be spoken out loud.`;
 
   const userPrompt = `Create a children's audio ${format.toLowerCase()} about "${topic}" with these settings:
 - Age group: ${age} years old
