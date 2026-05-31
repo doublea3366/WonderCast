@@ -1278,8 +1278,20 @@ function ListenScreen({
   );
 }
 
+const BAR_COUNT = 42;
+const BAR_HEIGHTS = Array.from({ length: BAR_COUNT }, (_, i) => 22 + ((i * 13) % 48));
+
+function formatTime(seconds) {
+  if (!seconds || isNaN(seconds)) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
   const audioRef = React.useRef(null);
+  const [currentTime, setCurrentTime] = React.useState(0);
+  const [duration, setDuration] = React.useState(0);
 
   React.useEffect(() => {
     if (!audioRef.current) return;
@@ -1290,10 +1302,27 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
     }
   }, [isPlaying]);
 
+  function handleSeek(e) {
+    if (!audioRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = ratio * duration;
+    setCurrentTime(ratio * duration);
+  }
+
+  const progress = duration ? currentTime / duration : 0;
+  const activeBars = Math.round(progress * BAR_COUNT);
+
   return (
     <article className="rounded-[36px] border border-white/80 bg-[#211c16] p-6 text-white shadow-[0_28px_90px_rgba(33,28,22,0.28)] sm:p-8">
       {audioUrl && (
-        <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          onEnded={() => { setIsPlaying(false); setCurrentTime(0); }}
+          onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+          onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+        />
       )}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -1323,24 +1352,33 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
       </div>
 
       <div className="mt-8 rounded-[28px] bg-white/10 p-4">
-        <div className="mb-4 flex h-20 items-end gap-1.5">
-          {Array.from({ length: 42 }).map((_, index) => (
+        <div
+          className="mb-4 flex h-20 cursor-pointer items-end gap-1.5"
+          onClick={handleSeek}
+        >
+          {BAR_HEIGHTS.map((height, index) => (
             <span
               key={index}
-              className="flex-1 rounded-full bg-[#ffcf78]"
+              className="flex-1 rounded-full transition-all duration-75"
               style={{
-                height: `${22 + ((index * 13) % 48)}%`,
-                opacity: index < 17 ? 1 : 0.35,
+                height: `${height}%`,
+                backgroundColor: index < activeBars ? "#ffb950" : "#ffcf78",
+                opacity: index < activeBars ? 1 : isPlaying && index === activeBars ? 1 : 0.35,
+                transform: isPlaying && index === activeBars ? "scaleY(1.2)" : "scaleY(1)",
+                transformOrigin: "bottom",
               }}
             />
           ))}
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/20">
-          <div className="h-full w-[42%] rounded-full bg-[#ffb950]" />
+        <div className="h-2 cursor-pointer overflow-hidden rounded-full bg-white/20" onClick={handleSeek}>
+          <div
+            className="h-full rounded-full bg-[#ffb950] transition-all duration-100"
+            style={{ width: `${progress * 100}%` }}
+          />
         </div>
         <div className="mt-2 flex justify-between text-sm font-bold text-[#f2dcc0]">
-          <span>1:54</span>
-          <span>{episode.length}</span>
+          <span>{formatTime(currentTime)}</span>
+          <span>{duration ? formatTime(duration) : episode.length}</span>
         </div>
       </div>
 
