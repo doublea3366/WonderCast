@@ -473,6 +473,8 @@ function App() {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [showScript, setShowScript] = useState(false);
+  const [previewFromApi, setPreviewFromApi] = useState(false);
+  const [previewError, setPreviewError] = useState(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const topicSafetyBlock = useMemo(() => getSafetyBlock(settings), [settings]);
@@ -494,6 +496,7 @@ function App() {
 
     setIsCreating(true);
     setShowScript(false);
+    setPreviewError(null);
 
     try {
       const response = await fetch("/api/generate", {
@@ -509,13 +512,14 @@ function App() {
 
       const next = await response.json();
       setPreview(next);
+      setPreviewFromApi(true);
       setEpisode(null);
       setView("preview");
     } catch (error) {
       console.error("Failed to generate preview:", error);
-      // Fall back to local preview so the user isn't left stuck
       const next = makePreview(settings, previewVersion);
       setPreview(next);
+      setPreviewFromApi(false);
       setEpisode(null);
       setView("preview");
     } finally {
@@ -527,6 +531,7 @@ function App() {
     const nextVersion = previewVersion + 1;
     setPreviewVersion(nextVersion);
     setShowScript(false);
+    setPreviewError(null);
 
     try {
       const response = await fetch("/api/generate", {
@@ -538,8 +543,10 @@ function App() {
       if (!response.ok) throw new Error("Regeneration failed");
       const next = await response.json();
       setPreview(next);
+      setPreviewFromApi(true);
+      setPreviewError(null);
     } catch {
-      setPreview(makePreview(settings, nextVersion));
+      setPreviewError("Couldn't regenerate — please try again.");
     }
   }
 
@@ -631,6 +638,8 @@ function App() {
               setShowScript={setShowScript}
               onGenerate={generateAudio}
               isGeneratingAudio={isGeneratingAudio}
+              previewFromApi={previewFromApi}
+              previewError={previewError}
               onEdit={() => setView("create")}
               onRegenerate={regeneratePreview}
             />
@@ -1095,6 +1104,8 @@ function PreviewScreen({
   setShowScript,
   onGenerate,
   isGeneratingAudio,
+  previewFromApi,
+  previewError,
   onEdit,
   onRegenerate,
 }) {
@@ -1123,17 +1134,23 @@ function PreviewScreen({
         <div className="space-y-3">
           <SafetyNote />
           <div className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
-            <button
-              onClick={onGenerate}
-              disabled={isGeneratingAudio}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white shadow-sm disabled:bg-[#c7b8a5] disabled:cursor-not-allowed"
-            >
-              {isGeneratingAudio ? (
-                <><RefreshCw className="animate-spin" size={18} /> Generating audio...</>
-              ) : (
-                <>Generate Audio <ChevronRight size={18} /></>
-              )}
-            </button>
+            {previewFromApi ? (
+              <button
+                onClick={onGenerate}
+                disabled={isGeneratingAudio}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white shadow-sm disabled:bg-[#c7b8a5] disabled:cursor-not-allowed"
+              >
+                {isGeneratingAudio ? (
+                  <><RefreshCw className="animate-spin" size={18} /> Generating audio...</>
+                ) : (
+                  <>Generate Audio <ChevronRight size={18} /></>
+                )}
+              </button>
+            ) : (
+              <div className="rounded-2xl bg-[#fff8ed] px-5 py-4 text-center text-sm font-semibold text-[#9a7650]">
+                Preview couldn't be generated — please try again.
+              </div>
+            )}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
                 onClick={onEdit}
@@ -1148,6 +1165,11 @@ function PreviewScreen({
                 Regenerate
               </button>
             </div>
+            {previewError && (
+              <p className="mt-2 text-center text-xs font-semibold text-[#b05a3a]">
+                {previewError}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -1445,6 +1467,7 @@ function SavedEpisodeCard({ episode }) {
         </span>
       </div>
       <h2 className="text-2xl font-black leading-tight">{episode.title}</h2>
+      <p className="mt-1 text-xs font-medium text-[#b8a58f]">Tap to replay coming soon</p>
       <p className="mt-2 text-sm font-bold text-[#8a725b]">{episode.topic}</p>
       <p className="mt-4 text-sm font-semibold leading-6 text-[#6f6253]">
         Ages {episode.age} · {episode.length} · {episode.situation} ·{" "}
