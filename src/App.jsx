@@ -475,12 +475,45 @@ function App() {
   const [showScript, setShowScript] = useState(false);
   const [previewFromApi, setPreviewFromApi] = useState(false);
   const [previewError, setPreviewError] = useState(null);
+  const [complexityCheck, setComplexityCheck] = useState(null); // { tier, message, suggestion }
+  const [complexityDismissed, setComplexityDismissed] = useState(false);
+  const [showComplexityModal, setShowComplexityModal] = useState(false);
+  const complexityTimer = React.useRef(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const topicSafetyBlock = useMemo(() => getSafetyBlock(settings), [settings]);
 
   function updateSetting(key, value) {
     setSettings((current) => ({ ...current, [key]: value }));
+    if (key === "topic") {
+      setComplexityDismissed(false);
+      setComplexityCheck(null);
+      clearTimeout(complexityTimer.current);
+      if (value.trim().length > 15) {
+        complexityTimer.current = setTimeout(() => {
+          checkTopicComplexity(value, settings.age);
+        }, 800);
+      }
+    }
+  }
+
+  async function checkTopicComplexity(topic, age) {
+    try {
+      const res = await fetch("/api/check-topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, age }),
+      });
+      const data = await res.json();
+      if (data.tier) {
+        setComplexityCheck(data);
+        if (data.tier === "block") setShowComplexityModal(true);
+      } else {
+        setComplexityCheck(null);
+      }
+    } catch {
+      // Fail open
+    }
   }
 
   function updateAge(age) {
@@ -625,7 +658,20 @@ function App() {
               setAdvancedOpen={setAdvancedOpen}
               isCreating={isCreating}
               topicSafetyBlock={topicSafetyBlock}
+              complexityCheck={complexityCheck}
+              complexityDismissed={complexityDismissed}
+              setComplexityDismissed={setComplexityDismissed}
               onCreate={createPreview}
+            />
+          )}
+          {showComplexityModal && complexityCheck?.tier === "block" && (
+            <ComplexityModal
+              check={complexityCheck}
+              onDismiss={() => {
+                setShowComplexityModal(false);
+                setComplexityDismissed(true);
+              }}
+              onEdit={() => setShowComplexityModal(false)}
             />
           )}
 
@@ -714,9 +760,13 @@ function CreateScreen({
   setAdvancedOpen,
   isCreating,
   topicSafetyBlock,
+  complexityCheck,
+  complexityDismissed,
+  setComplexityDismissed,
   onCreate,
 }) {
-  const canCreate = settings.topic.trim().length > 1;
+  const isBlocked = complexityCheck?.tier === "block" && !complexityDismissed;
+  const canCreate = settings.topic.trim().length > 1 && !isBlocked;
 
   return (
     <motion.section {...fadeUp} className="pb-10">
@@ -741,6 +791,9 @@ function CreateScreen({
             value={settings.topic}
             onChange={(value) => updateSetting("topic", value)}
             topicSafetyBlock={topicSafetyBlock}
+            complexityCheck={complexityCheck}
+            complexityDismissed={complexityDismissed}
+            onDismissComplexity={() => setComplexityDismissed(true)}
           />
 
           <div className="mt-7">
@@ -802,13 +855,16 @@ function TopTrustCard() {
   );
 }
 
-function HeroInput({ value, onChange, topicSafetyBlock }) {
+function HeroInput({ value, onChange, topicSafetyBlock, complexityCheck, complexityDismissed, onDismissComplexity }) {
+  const showWarn = complexityCheck?.tier === "warn" && !complexityDismissed;
+  const showBlock = complexityCheck?.tier === "block" && !complexityDismissed;
+
   return (
     <div className="mt-8">
       <label className="mb-3 block text-sm font-black uppercase tracking-[0.12em] text-[#7F3E28]">
         Topic
       </label>
-      <div className="rounded-[26px] border border-[#A74921] bg-[#E7B05E]/40 p-3 shadow-inner shadow-[#A74921]/20">
+      <div className={`rounded-[26px] border bg-[#E7B05E]/40 p-3 shadow-inner shadow-[#A74921]/20 transition ${showBlock ? "border-orange-500" : "border-[#A74921]"}`}>
         <textarea
           value={value}
           onChange={(event) => onChange(event.target.value)}
@@ -816,14 +872,55 @@ function HeroInput({ value, onChange, topicSafetyBlock }) {
           className="min-h-28 w-full resize-none rounded-[20px] bg-transparent p-3 text-2xl font-bold leading-snug text-[#1B203A] outline-none placeholder:text-[#7F3E28]/60 sm:text-3xl"
         />
       </div>
+
       {topicSafetyBlock && (
-        <div className="mt-3 flex gap-3 rounded-2xl border border-red-500/30 bg-red-900/20 p-4 text-sm font-semibold leading-6 text-red-300">
+        <div className="mt-3 flex gap-3 rounded-2xl border border-red-400/40 bg-red-50 p-4 text-sm font-semibold leading-6 text-red-700">
           <ShieldAlert className="mt-0.5 shrink-0" size={19} />
           <div>
             <p className="font-black">{topicSafetyBlock.title}</p>
             <p className="mt-1">{topicSafetyBlock.detail}</p>
           </div>
         </div>
+      )}
+
+      {showWarn && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 flex items-start gap-3 rounded-2xl border border-[#E7B05E] bg-[#E7B05E]/20 p-4"
+        >
+          <span className="mt-0.5 text-xl">💡</span>
+          <div className="flex-1">
+            <p className="text-sm font-black text-[#7F3E28]">{complexityCheck.message}</p>
+            <p className="mt-1 text-sm font-semibold text-[#A74921]">{complexityCheck.suggestion}</p>
+          </div>
+          <button
+            onClick={onDismissComplexity}
+            className="shrink-0 rounded-full px-3 py-1.5 text-xs font-black text-[#7F3E28] hover:bg-[#A74921]/10 transition"
+          >
+            Got it, continue
+          </button>
+        </motion.div>
+      )}
+
+      {showBlock && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 flex items-start gap-3 rounded-2xl border border-orange-400 bg-orange-50 p-4"
+        >
+          <span className="mt-0.5 text-xl">🎯</span>
+          <div className="flex-1">
+            <p className="text-sm font-black text-orange-800">{complexityCheck.message}</p>
+            <p className="mt-1 text-sm font-semibold text-orange-700">{complexityCheck.suggestion}</p>
+          </div>
+          <button
+            onClick={onDismissComplexity}
+            className="shrink-0 rounded-full px-3 py-1.5 text-xs font-black text-orange-700 hover:bg-orange-100 transition"
+          >
+            Proceed anyway
+          </button>
+        </motion.div>
       )}
     </div>
   );
@@ -1497,6 +1594,43 @@ function SafetyNote() {
         </div>
       </div>
     </section>
+  );
+}
+
+function ComplexityModal({ check, onDismiss, onEdit }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onEdit} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative mx-auto w-full max-w-md rounded-[32px] border border-orange-300 bg-white p-7 shadow-[0_32px_80px_rgba(0,0,0,0.2)]"
+      >
+        <div className="mb-5 flex items-center gap-3">
+          <span className="text-3xl">🎯</span>
+          <h2 className="text-xl font-black text-[#1B203A]">Let's simplify this a little</h2>
+        </div>
+        <p className="text-base font-semibold leading-7 text-[#7F3E28]">{check.message}</p>
+        <div className="mt-4 rounded-2xl border border-[#E7B05E] bg-[#E7B05E]/20 p-4">
+          <p className="text-sm font-black text-[#7F3E28]">Try instead:</p>
+          <p className="mt-1 text-sm font-semibold text-[#A74921]">{check.suggestion}</p>
+        </div>
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <button
+            onClick={onEdit}
+            className="rounded-2xl bg-[#1B203A] px-4 py-3 text-sm font-black text-white transition hover:bg-[#2a3050]"
+          >
+            Edit my topic
+          </button>
+          <button
+            onClick={onDismiss}
+            className="rounded-2xl bg-[#f5d8b8] px-4 py-3 text-sm font-black text-[#7F3E28] transition hover:bg-[#E7B05E]/40"
+          >
+            Proceed anyway
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
