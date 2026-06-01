@@ -687,7 +687,7 @@ function AppNav({ view, setView }) {
         </div>
       </button>
 
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#1B203A] p-1.5">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#A74921] bg-[#E7B05E]/40 p-1.5">
         {["create", "library"].map((item) => (
           <button
             key={item}
@@ -695,7 +695,7 @@ function AppNav({ view, setView }) {
             className={`rounded-xl px-4 py-2.5 text-sm font-bold capitalize transition ${
               view === item
                 ? "bg-[#A74921] text-white shadow-sm"
-                : "text-[#FCE7CF]/70 hover:text-white"
+                : "text-[#7F3E28] hover:text-[#1B203A]"
             }`}
           >
             {item}
@@ -858,7 +858,7 @@ function AgeSelector({ value, onChange }) {
 function FormatToggle({ value, onChange }) {
   return (
     <ControlPanel icon={BookOpen} title="Format">
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#1B203A] p-1.5">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#A74921] bg-[#E7B05E]/40 p-1.5">
         {["Story", "Lesson"].map((format) => (
           <button
             key={format}
