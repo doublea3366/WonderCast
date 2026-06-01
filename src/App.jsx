@@ -808,12 +808,12 @@ function HeroInput({ value, onChange, topicSafetyBlock }) {
       <label className="mb-3 block text-sm font-black uppercase tracking-[0.12em] text-[#7F3E28]">
         Topic
       </label>
-      <div className="rounded-[26px] border border-white/10 bg-[#1B203A] p-3 shadow-inner shadow-black/40">
+      <div className="rounded-[26px] border border-[#A74921] bg-[#E7B05E]/40 p-3 shadow-inner shadow-[#A74921]/20">
         <textarea
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Dinosaurs, Ancient Egypt, how rain works, kindness, outer space..."
-          className="min-h-28 w-full resize-none rounded-[20px] bg-transparent p-3 text-2xl font-bold leading-snug text-[#1B203A] outline-none placeholder:text-[#A74921]/50 sm:text-3xl"
+          className="min-h-28 w-full resize-none rounded-[20px] bg-transparent p-3 text-2xl font-bold leading-snug text-[#1B203A] outline-none placeholder:text-[#7F3E28]/60 sm:text-3xl"
         />
       </div>
       {topicSafetyBlock && (
