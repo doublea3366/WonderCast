@@ -819,6 +819,19 @@ function CreateScreen({
             for car rides, bedtime, and everyday curiosity.
           </p>
 
+          <div className="mt-7">
+            <AgeSelector value={settings.age} onChange={updateAge} />
+          </div>
+
+          {/* Smart scroll hint — mobile only, disappears once topic typed or advanced opened */}
+          {!settings.topic.trim() && !advancedOpen && (
+            <div className="mt-4 flex items-center justify-center gap-1.5 lg:hidden">
+              <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
+              <p className="text-xs font-semibold text-[#7F3E28]/70">Tune voice, tone &amp; more below</p>
+              <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
+            </div>
+          )}
+
           <HeroInput
             value={settings.topic}
             onChange={(value) => updateSetting("topic", value)}
@@ -835,14 +848,12 @@ function CreateScreen({
               onClick={onCreate}
             />
             <p className="mt-3 text-sm font-medium text-[#7F3E28]">
-              Age presets update automatically so the first draft starts in the
-              right place.
+              Format, length, voice and tone can be tuned below.
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <AgeSelector value={settings.age} onChange={updateAge} />
           <div className="grid gap-4 md:grid-cols-2">
             <FormatToggle
               value={settings.format}
@@ -955,17 +966,22 @@ function HeroInput({ value, onChange, topicSafetyBlock, complexityCheck, complex
 
 function AgeSelector({ value, onChange }) {
   return (
-    <ControlPanel
-      icon={Sparkles}
-      title="Child age"
-      description="Pick an age band and WonderCast chooses smarter starting defaults."
-    >
-      <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4 lg:grid-cols-7">
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <div className="grid size-9 place-items-center rounded-xl bg-[#E7B05E]/30 text-[#A74921]">
+          <Sparkles size={17} />
+        </div>
+        <div>
+          <p className="font-black text-[#1B203A]">Child age</p>
+          <p className="text-sm font-medium text-[#7F3E28]">Sets tone, vocabulary and learning depth automatically.</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-2 min-[420px]:grid-cols-7">
         {ageOptions.map((age) => (
           <button
             key={age}
             onClick={() => onChange(age)}
-            className={`rounded-2xl px-2 py-4 text-center font-black transition ${
+            className={`rounded-2xl px-2 py-3.5 text-center text-sm font-black transition ${
               value === age
                 ? "bg-[#A74921] text-white shadow-[0_10px_22px_rgba(232,130,12,0.4)]"
                 : "bg-[#f5d8b8] text-[#7F3E28] hover:bg-white"
@@ -975,7 +991,7 @@ function AgeSelector({ value, onChange }) {
           </button>
         ))}
       </div>
-    </ControlPanel>
+    </div>
   );
 }
 
