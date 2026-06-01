@@ -492,7 +492,7 @@ function App() {
       if (value.trim().length > 15) {
         complexityTimer.current = setTimeout(() => {
           checkTopicComplexity(value, settings.age);
-        }, 800);
+        }, 1600);
       }
     }
   }
@@ -526,6 +526,38 @@ function App() {
 
   async function createPreview() {
     if (getSafetyBlock(settings)) return;
+
+    // If no check has run yet, run it now and block until complete
+    if (!complexityCheck && settings.topic.trim().length > 15) {
+      clearTimeout(complexityTimer.current);
+      setIsCreating(true);
+      try {
+        const res = await fetch("/api/check-topic", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: settings.topic, age: settings.age }),
+        });
+        const data = await res.json();
+        if (data.tier === "block") {
+          setComplexityCheck(data);
+          setShowComplexityModal(true);
+          setIsCreating(false);
+          return;
+        }
+        if (data.tier === "warn") {
+          setComplexityCheck(data);
+        }
+      } catch {
+        // Fail open
+      }
+      setIsCreating(false);
+    }
+
+    // Hard stop on block tier — no proceeding
+    if (complexityCheck?.tier === "block") {
+      setShowComplexityModal(true);
+      return;
+    }
 
     setIsCreating(true);
     setShowScript(false);
@@ -765,7 +797,7 @@ function CreateScreen({
   setComplexityDismissed,
   onCreate,
 }) {
-  const isBlocked = complexityCheck?.tier === "block" && !complexityDismissed;
+  const isBlocked = complexityCheck?.tier === "block";
   const canCreate = settings.topic.trim().length > 1 && !isBlocked;
 
   return (
@@ -898,7 +930,7 @@ function HeroInput({ value, onChange, topicSafetyBlock, complexityCheck, complex
             onClick={onDismissComplexity}
             className="shrink-0 rounded-full px-3 py-1.5 text-xs font-black text-[#7F3E28] hover:bg-[#A74921]/10 transition"
           >
-            Got it, continue
+            Dismiss
           </button>
         </motion.div>
       )}
@@ -913,13 +945,8 @@ function HeroInput({ value, onChange, topicSafetyBlock, complexityCheck, complex
           <div className="flex-1">
             <p className="text-sm font-black text-orange-800">{complexityCheck.message}</p>
             <p className="mt-1 text-sm font-semibold text-orange-700">{complexityCheck.suggestion}</p>
+            <p className="mt-2 text-xs font-semibold text-orange-600">Please simplify your topic to continue.</p>
           </div>
-          <button
-            onClick={onDismissComplexity}
-            className="shrink-0 rounded-full px-3 py-1.5 text-xs font-black text-orange-700 hover:bg-orange-100 transition"
-          >
-            Proceed anyway
-          </button>
         </motion.div>
       )}
     </div>
@@ -1615,19 +1642,16 @@ function ComplexityModal({ check, onDismiss, onEdit }) {
           <p className="text-sm font-black text-[#7F3E28]">Try instead:</p>
           <p className="mt-1 text-sm font-semibold text-[#A74921]">{check.suggestion}</p>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-6">
           <button
             onClick={onEdit}
-            className="rounded-2xl bg-[#1B203A] px-4 py-3 text-sm font-black text-white transition hover:bg-[#2a3050]"
+            className="w-full rounded-2xl bg-[#1B203A] px-4 py-3.5 text-sm font-black text-white transition hover:bg-[#2a3050]"
           >
             Edit my topic
           </button>
-          <button
-            onClick={onDismiss}
-            className="rounded-2xl bg-[#f5d8b8] px-4 py-3 text-sm font-black text-[#7F3E28] transition hover:bg-[#E7B05E]/40"
-          >
-            Proceed anyway
-          </button>
+          <p className="mt-3 text-center text-xs font-semibold text-orange-500">
+            Topics that are too complex can't be turned into a great kids episode — simplifying helps!
+          </p>
         </div>
       </motion.div>
     </div>
