@@ -609,8 +609,8 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#fff8ec] text-[#211c16]">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,#ffe0a6_0,transparent_34%),radial-gradient(circle_at_top_right,#cdeef6_0,transparent_30%),linear-gradient(180deg,#fff8ec_0%,#f8efe0_100%)]" />
+    <main className="min-h-screen overflow-hidden bg-[#0f1629] text-[#f5e6c8]">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,#e8820c22_0,transparent_50%),radial-gradient(circle_at_top_left,#1a2340_0,transparent_60%),linear-gradient(180deg,#0f1629_0%,#0a1020_100%)]" />
       <div className="relative mx-auto min-h-screen w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <AppNav view={view} setView={setView} />
 
@@ -673,31 +673,29 @@ function App() {
 
 function AppNav({ view, setView }) {
   return (
-    <nav className="mb-6 flex flex-col gap-4 rounded-[28px] border border-white/75 bg-white/68 p-3 shadow-[0_18px_70px_rgba(126,92,40,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+    <nav className="mb-6 flex flex-col gap-4 rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.4)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
       <button
         onClick={() => setView("create")}
         className="flex items-center gap-3 text-left"
       >
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#ffb950] text-[#342112] shadow-inner shadow-white/30">
-          <Headphones size={24} />
-        </div>
+        <img src="/logo.png" alt="WonderCast" className="size-12 rounded-2xl object-cover" />
         <div>
-          <p className="text-xl font-bold leading-tight">WonderCast</p>
-          <p className="text-sm font-medium text-[#796b5b]">
+          <p className="text-xl font-bold leading-tight text-[#f5e6c8]">WonderCast</p>
+          <p className="text-sm font-medium text-[#9e8e76]">
             Screen-free learning for curious kids
           </p>
         </div>
       </button>
 
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#f7ead8] p-1.5">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#0f1629] p-1.5">
         {["create", "library"].map((item) => (
           <button
             key={item}
             onClick={() => setView(item)}
             className={`rounded-xl px-4 py-2.5 text-sm font-bold capitalize transition ${
               view === item
-                ? "bg-white text-[#211c16] shadow-sm"
-                : "text-[#776856] hover:bg-white/55"
+                ? "bg-[#e8820c] text-white shadow-sm"
+                : "text-[#9e8e76] hover:text-[#f5e6c8]"
             }`}
           >
             {item}
@@ -725,16 +723,16 @@ function CreateScreen({
       <TopTrustCard />
 
       <div className="mt-5 grid gap-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
-        <div className="rounded-[34px] border border-white/80 bg-white/72 p-5 shadow-[0_24px_90px_rgba(143,98,35,0.16)] backdrop-blur sm:p-7 lg:p-8">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full bg-[#fff1cf] px-3 py-1.5 text-sm font-bold text-[#8c5d14]">
+        <div className="rounded-[34px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.4)] backdrop-blur sm:p-7 lg:p-8">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full bg-[#e8820c]/20 px-3 py-1.5 text-sm font-bold text-[#f5a52a]">
             <Stars size={16} />
             Less screen time. More learning. Easier parenting.
           </div>
 
-          <h1 className="max-w-3xl text-4xl font-black leading-[1.03] tracking-normal text-balance sm:text-5xl lg:text-6xl">
+          <h1 className="max-w-3xl text-4xl font-black leading-[1.03] tracking-normal text-balance text-[#f5e6c8] sm:text-5xl lg:text-6xl">
             What should your child learn today?
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#6f6253]">
+          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#9e8e76]">
             Personalized audio adventures and lessons for curious kids, made
             for car rides, bedtime, and everyday curiosity.
           </p>
@@ -751,7 +749,7 @@ function CreateScreen({
               isCreating={isCreating}
               onClick={onCreate}
             />
-            <p className="mt-3 text-sm font-medium text-[#817260]">
+            <p className="mt-3 text-sm font-medium text-[#9e8e76]">
               Age presets update automatically so the first draft starts in the
               right place.
             </p>
@@ -784,16 +782,16 @@ function CreateScreen({
 
 function TopTrustCard() {
   return (
-    <section className="rounded-[28px] border border-[#f1dbb6] bg-gradient-to-r from-white/82 via-[#fff8ed]/88 to-[#eff9f8]/82 p-4 shadow-[0_18px_70px_rgba(126,92,40,0.1)] backdrop-blur">
+    <section className="rounded-[28px] border border-[#e8820c]/30 bg-gradient-to-r from-[#1a2340]/90 via-[#1e2a4a]/90 to-[#1a2340]/90 p-4 shadow-[0_18px_70px_rgba(0,0,0,0.3)] backdrop-blur">
       <div className="flex gap-3">
-        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-[#4f8a45] shadow-sm">
+        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8820c]/20 text-[#f5a52a] shadow-sm">
           <ShieldCheck size={22} />
         </div>
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.12em] text-[#8c6a43]">
+          <p className="text-sm font-black uppercase tracking-[0.12em] text-[#f5a52a]">
             Child-safe and parent-approved by design:
           </p>
-          <p className="mt-1 text-sm font-bold leading-6 text-[#5f554a] sm:text-base">
+          <p className="mt-1 text-sm font-bold leading-6 text-[#9e8e76] sm:text-base">
             Language that is appropriate for children based on their age, strict
             child-safe content guidelines, safeguards for explicit and sensitive
             topics, and fact-aware drafts before audio is created.
@@ -807,19 +805,19 @@ function TopTrustCard() {
 function HeroInput({ value, onChange, topicSafetyBlock }) {
   return (
     <div className="mt-8">
-      <label className="mb-3 block text-sm font-black uppercase tracking-[0.12em] text-[#9a7650]">
+      <label className="mb-3 block text-sm font-black uppercase tracking-[0.12em] text-[#9e8e76]">
         Topic
       </label>
-      <div className="rounded-[26px] border border-[#efd5a8] bg-[#fffdf8] p-3 shadow-inner shadow-[#f5dfbd]">
+      <div className="rounded-[26px] border border-white/10 bg-[#0f1629] p-3 shadow-inner shadow-black/40">
         <textarea
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Dinosaurs, Ancient Egypt, how rain works, kindness, outer space..."
-          className="min-h-28 w-full resize-none rounded-[20px] bg-transparent p-3 text-2xl font-bold leading-snug text-[#241c14] outline-none placeholder:text-[#b8a58f] sm:text-3xl"
+          className="min-h-28 w-full resize-none rounded-[20px] bg-transparent p-3 text-2xl font-bold leading-snug text-[#f5e6c8] outline-none placeholder:text-[#4a5578] sm:text-3xl"
         />
       </div>
       {topicSafetyBlock && (
-        <div className="mt-3 flex gap-3 rounded-2xl border border-[#efb0a2] bg-[#fff0ed] p-4 text-sm font-semibold leading-6 text-[#833a2e]">
+        <div className="mt-3 flex gap-3 rounded-2xl border border-red-500/30 bg-red-900/20 p-4 text-sm font-semibold leading-6 text-red-300">
           <ShieldAlert className="mt-0.5 shrink-0" size={19} />
           <div>
             <p className="font-black">{topicSafetyBlock.title}</p>
@@ -845,8 +843,8 @@ function AgeSelector({ value, onChange }) {
             onClick={() => onChange(age)}
             className={`rounded-2xl px-2 py-4 text-center font-black transition ${
               value === age
-                ? "bg-[#ffb950] text-[#2f210f] shadow-[0_10px_22px_rgba(209,126,24,0.24)]"
-                : "bg-[#fff8ed] text-[#796b5a] hover:bg-white"
+                ? "bg-[#e8820c] text-[#2f210f] shadow-[0_10px_22px_rgba(232,130,12,0.4)]"
+                : "bg-[#1e2a4a] text-[#9e8e76] hover:bg-white"
             }`}
           >
             {age}
@@ -860,20 +858,20 @@ function AgeSelector({ value, onChange }) {
 function FormatToggle({ value, onChange }) {
   return (
     <ControlPanel icon={BookOpen} title="Format">
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#f6ead7] p-1.5">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[#0f1629] p-1.5">
         {["Story", "Lesson"].map((format) => (
           <button
             key={format}
             onClick={() => onChange(format)}
             className={`rounded-xl px-4 py-3 text-sm font-black transition ${
-              value === format ? "bg-white shadow-sm" : "text-[#776856]"
+              value === format ? "bg-white shadow-sm" : "text-[#9e8e76]"
             }`}
           >
             {format}
           </button>
         ))}
       </div>
-      <p className="mt-3 text-sm font-medium leading-6 text-[#7b6d5d]">
+      <p className="mt-3 text-sm font-medium leading-6 text-[#9e8e76]">
         Story wraps facts in a narrative. Lesson explains directly.
       </p>
     </ControlPanel>
@@ -890,8 +888,8 @@ function LengthSelector({ value, onChange }) {
             onClick={() => onChange(length)}
             className={`rounded-2xl px-3 py-3 text-sm font-black transition ${
               value === length
-                ? "bg-[#9bd6e5] text-[#143942] shadow-sm"
-                : "bg-[#fff8ed] text-[#796b5a] hover:bg-white"
+                ? "bg-[#e8820c] text-white shadow-sm"
+                : "bg-[#1e2a4a] text-[#9e8e76] hover:bg-white"
             }`}
           >
             {length}
@@ -904,24 +902,24 @@ function LengthSelector({ value, onChange }) {
 
 function AdvancedControls({ settings, updateSetting, open, setOpen }) {
   return (
-    <section className="rounded-[28px] border border-white/80 bg-white/72 p-4 shadow-[0_16px_60px_rgba(126,92,40,0.1)] backdrop-blur">
+    <section className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-4 shadow-[0_16px_60px_rgba(0,0,0,0.3)] backdrop-blur">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between gap-4 text-left"
       >
         <span className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#fff1cf] text-[#b97012]">
+          <span className="grid size-11 place-items-center rounded-2xl bg-[#e8820c]/20 text-[#f5a52a]">
             <SlidersHorizontal size={20} />
           </span>
           <span>
             <span className="block font-black">Advanced Controls</span>
-            <span className="mt-1 block text-sm font-medium leading-5 text-[#7b6d5d]">
+            <span className="mt-1 block text-sm font-medium leading-5 text-[#9e8e76]">
               Fine-tune voice, tone, situation, and learning style.
             </span>
           </span>
         </span>
         <ChevronDown
-          className={`shrink-0 text-[#8d765d] transition ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-[#9e8e76] transition ${open ? "rotate-180" : ""}`}
           size={22}
         />
       </button>
@@ -935,7 +933,7 @@ function AdvancedControls({ settings, updateSetting, open, setOpen }) {
             transition={{ duration: 0.26, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-4 space-y-4 border-t border-[#efe1ce] pt-4">
+            <div className="mt-4 space-y-4 border-t border-white/10 pt-4">
               <SituationSelector
                 value={settings.situation}
                 onChange={(value) => updateSetting("situation", value)}
@@ -1000,8 +998,8 @@ function SituationSelector({ value, onChange }) {
             onClick={() => onChange(label)}
             className={`flex items-start gap-3 rounded-2xl border p-3 text-left transition ${
               value === label
-                ? "border-[#ffb950] bg-[#fff3d4] shadow-sm"
-                : "border-[#efe1ce] bg-[#fffaf2] hover:bg-white"
+                ? "border-[#e8820c] bg-[#e8820c]/20 shadow-sm"
+                : "border-white/10 bg-[#1e2a4a] hover:bg-white"
             }`}
           >
             <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-[#d66b3f]">
@@ -1009,7 +1007,7 @@ function SituationSelector({ value, onChange }) {
             </span>
             <span>
               <span className="block font-black">{label}</span>
-              <span className="mt-1 block text-sm font-medium leading-5 text-[#7b6d5d]">
+              <span className="mt-1 block text-sm font-medium leading-5 text-[#9e8e76]">
                 {note}
               </span>
             </span>
@@ -1031,7 +1029,7 @@ function OptionPills({ icon: Icon, title, options, value, onChange }) {
             className={`rounded-full px-4 py-2.5 text-sm font-black transition ${
               value === option
                 ? "bg-[#f47b5d] text-white shadow-sm"
-                : "bg-[#fff8ed] text-[#796b5a] hover:bg-white"
+                : "bg-[#1e2a4a] text-[#9e8e76] hover:bg-white"
             }`}
           >
             {option}
@@ -1044,15 +1042,15 @@ function OptionPills({ icon: Icon, title, options, value, onChange }) {
 
 function ControlPanel({ icon: Icon, title, description, children }) {
   return (
-    <section className="rounded-[26px] border border-white/80 bg-white/72 p-4 shadow-[0_16px_60px_rgba(126,92,40,0.1)] backdrop-blur">
+    <section className="rounded-[26px] border border-white/10 bg-[#1a2340]/80 p-4 shadow-[0_16px_60px_rgba(0,0,0,0.3)] backdrop-blur">
       <div className="mb-3 flex items-start gap-3">
-        <div className="grid size-10 place-items-center rounded-2xl bg-[#fff1cf] text-[#b97012]">
+        <div className="grid size-10 place-items-center rounded-2xl bg-[#e8820c]/20 text-[#f5a52a]">
           <Icon size={19} />
         </div>
         <div>
           <h2 className="font-black">{title}</h2>
           {description && (
-            <p className="mt-1 text-sm font-medium leading-5 text-[#7b6d5d]">
+            <p className="mt-1 text-sm font-medium leading-5 text-[#9e8e76]">
               {description}
             </p>
           )}
@@ -1066,7 +1064,7 @@ function ControlPanel({ icon: Icon, title, description, children }) {
 function MiniPanel({ icon: Icon, title, children }) {
   return (
     <div>
-      <div className="mb-2 flex items-center gap-2 text-sm font-black text-[#6a5b4a]">
+      <div className="mb-2 flex items-center gap-2 text-sm font-black text-[#9e8e76]">
         <Icon size={16} />
         {title}
       </div>
@@ -1080,7 +1078,7 @@ function CreateButton({ disabled, isCreating, onClick }) {
     <button
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#211c16] px-6 py-4 text-base font-black text-white shadow-[0_18px_36px_rgba(33,28,22,0.22)] transition hover:bg-[#352b20] disabled:cursor-not-allowed disabled:bg-[#c7b8a5] sm:w-auto"
+      className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#0f1629] px-6 py-4 text-base font-black text-white shadow-[0_18px_36px_rgba(232,130,12,0.3)] transition hover:bg-[#352b20] disabled:cursor-not-allowed disabled:bg-[#c7b8a5] sm:w-auto"
     >
       {isCreating ? (
         <>
@@ -1113,7 +1111,7 @@ function PreviewScreen({
     <motion.section {...fadeUp} className="mx-auto max-w-5xl pb-10">
       <EpisodePreviewCard preview={preview} settings={settings} />
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.8fr]">
-        <div className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
+        <div className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
           <FactAwareDraft preview={preview} />
           <LearningPoints
             title={preview.details.coveredTitle}
@@ -1121,24 +1119,24 @@ function PreviewScreen({
           />
           <button
             onClick={() => setShowScript(!showScript)}
-            className="mt-5 rounded-2xl bg-[#f7ead8] px-4 py-2.5 text-sm font-black text-[#725737]"
+            className="mt-5 rounded-2xl bg-[#0f1629] px-4 py-2.5 text-sm font-black text-[#f5a52a]"
           >
             {showScript ? "Hide script excerpt" : "View full script"}
           </button>
           {showScript && (
-            <p className="mt-4 rounded-2xl bg-[#fff8ed] p-4 text-sm font-semibold leading-7 text-[#6e6254]">
+            <p className="mt-4 rounded-2xl bg-[#1e2a4a] p-4 text-sm font-semibold leading-7 text-[#9e8e76]">
               {preview.script}
             </p>
           )}
         </div>
         <div className="space-y-3">
           <SafetyNote />
-          <div className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
+          <div className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
             {previewFromApi ? (
               <button
                 onClick={onGenerate}
                 disabled={isGeneratingAudio}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white shadow-sm disabled:bg-[#c7b8a5] disabled:cursor-not-allowed"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f1629] px-5 py-4 font-black text-white shadow-sm disabled:bg-[#c7b8a5] disabled:cursor-not-allowed"
               >
                 {isGeneratingAudio ? (
                   <><RefreshCw className="animate-spin" size={18} /> Generating audio...</>
@@ -1147,26 +1145,26 @@ function PreviewScreen({
                 )}
               </button>
             ) : (
-              <div className="rounded-2xl bg-[#fff8ed] px-5 py-4 text-center text-sm font-semibold text-[#9a7650]">
+              <div className="rounded-2xl bg-[#1e2a4a] px-5 py-4 text-center text-sm font-semibold text-[#9e8e76]">
                 Preview couldn't be generated — please try again.
               </div>
             )}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
                 onClick={onEdit}
-                className="rounded-2xl bg-[#fff8ed] px-4 py-3 text-sm font-black text-[#725737]"
+                className="rounded-2xl bg-[#1e2a4a] px-4 py-3 text-sm font-black text-[#f5a52a]"
               >
                 Edit Topic
               </button>
               <button
                 onClick={onRegenerate}
-                className="rounded-2xl bg-[#fff8ed] px-4 py-3 text-sm font-black text-[#725737]"
+                className="rounded-2xl bg-[#1e2a4a] px-4 py-3 text-sm font-black text-[#f5a52a]"
               >
                 Regenerate
               </button>
             </div>
             {previewError && (
-              <p className="mt-2 text-center text-xs font-semibold text-[#b05a3a]">
+              <p className="mt-2 text-center text-xs font-semibold text-red-400">
                 {previewError}
               </p>
             )}
@@ -1179,7 +1177,7 @@ function PreviewScreen({
 
 function EpisodePreviewCard({ preview, settings }) {
   return (
-    <article className="rounded-[34px] border border-white/80 bg-white/78 p-6 shadow-[0_24px_90px_rgba(143,98,35,0.16)] backdrop-blur sm:p-8">
+    <article className="rounded-[34px] border border-white/80 bg-white/78 p-6 shadow-[0_24px_90px_rgba(0,0,0,0.4)] backdrop-blur sm:p-8">
       <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-[#e4f7fb] px-3 py-1.5 text-sm font-black text-[#27606c]">
         <BadgeCheck size={16} />
         Fact-aware draft
@@ -1187,7 +1185,7 @@ function EpisodePreviewCard({ preview, settings }) {
       <h1 className="text-4xl font-black leading-tight text-balance sm:text-5xl">
         {preview.title}
       </h1>
-      <p className="mt-4 max-w-3xl text-lg leading-8 text-[#6e6254]">
+      <p className="mt-4 max-w-3xl text-lg leading-8 text-[#9e8e76]">
         {preview.summary}
       </p>
       <div className="mt-6 flex flex-wrap gap-2">
@@ -1198,7 +1196,7 @@ function EpisodePreviewCard({ preview, settings }) {
         <Tag>{settings.tone}</Tag>
         <Tag>{settings.voiceStyle}</Tag>
       </div>
-      <p className="mt-5 rounded-2xl bg-[#fff8ed] p-4 text-sm font-semibold leading-6 text-[#7c6b58]">
+      <p className="mt-5 rounded-2xl bg-[#1e2a4a] p-4 text-sm font-semibold leading-6 text-[#7c6b58]">
         Designed to use child-appropriate, commonly validated information.
         Source grounding will be added in a future version.
       </p>
@@ -1208,18 +1206,18 @@ function EpisodePreviewCard({ preview, settings }) {
 
 function FactAwareDraft({ preview }) {
   return (
-    <section className="mb-5 rounded-[24px] border border-[#e7d8c4] bg-[#fffaf2] p-4">
+    <section className="mb-5 rounded-[24px] border border-white/10 bg-[#1e2a4a] p-4">
       <div className="mb-4 flex items-center gap-2">
-        <BadgeCheck size={18} className="text-[#2f7983]" />
+        <BadgeCheck size={18} className="text-[#f5a52a]" />
         <h2 className="text-xl font-black">{preview.details.type}</h2>
       </div>
       <div className="space-y-3">
         {preview.details.sections.map((section) => (
           <div key={section.label}>
-            <p className="text-sm font-black text-[#8a6842]">
+            <p className="text-sm font-black text-[#f5a52a]">
               {section.label}:
             </p>
-            <p className="mt-1 font-semibold leading-7 text-[#5d5247]">
+            <p className="mt-1 font-semibold leading-7 text-[#c8b89a]">
               {section.value}
             </p>
           </div>
@@ -1235,11 +1233,11 @@ function LearningPoints({ title = "What your child will learn", points }) {
       <h2 className="text-xl font-black">{title}</h2>
       <div className="mt-4 grid gap-3">
         {points.map((point) => (
-          <div key={point} className="flex gap-3 rounded-2xl bg-[#fff8ed] p-3">
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#ccecc6] text-[#386b2e]">
+          <div key={point} className="flex gap-3 rounded-2xl bg-[#1e2a4a] p-3">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#1e3a2a] text-[#7de0a0]">
               <Check size={16} />
             </span>
-            <p className="font-semibold leading-6 text-[#5d5247]">{point}</p>
+            <p className="font-semibold leading-6 text-[#c8b89a]">{point}</p>
           </div>
         ))}
       </div>
@@ -1265,9 +1263,9 @@ function ListenScreen({
         setIsPlaying={setIsPlaying}
       />
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.65fr]">
-        <article className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
+        <article className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
           <h2 className="text-xl font-black">Parent summary</h2>
-          <p className="mt-3 text-base font-medium leading-8 text-[#6e6254]">
+          <p className="mt-3 text-base font-medium leading-8 text-[#9e8e76]">
             {episode.summary}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -1277,11 +1275,11 @@ function ListenScreen({
             <Tag>{episode.safetySensitivity}</Tag>
           </div>
         </article>
-        <div className="rounded-[28px] border border-white/80 bg-white/72 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.12)]">
+        <div className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
           <button
             onClick={onSave}
             className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 font-black shadow-sm ${
-              saved ? "bg-[#ccecc6] text-[#315a28]" : "bg-[#211c16] text-white"
+              saved ? "bg-[#1e4a2a] text-[#7de0a0]" : "bg-[#0f1629] text-white"
             }`}
           >
             <Library size={18} />
@@ -1289,7 +1287,7 @@ function ListenScreen({
           </button>
           <button
             onClick={onCreateAnother}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#fff8ed] px-5 py-4 font-black text-[#725737]"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#1e2a4a] px-5 py-4 font-black text-[#f5a52a]"
           >
             <Sparkles size={18} />
             Create another
@@ -1336,7 +1334,7 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
   const activeBars = Math.round(progress * BAR_COUNT);
 
   return (
-    <article className="rounded-[36px] border border-white/80 bg-[#211c16] p-6 text-white shadow-[0_28px_90px_rgba(33,28,22,0.28)] sm:p-8">
+    <article className="rounded-[36px] border border-white/80 bg-[#0f1629] p-6 text-white shadow-[0_28px_90px_rgba(0,0,0,0.5)] sm:p-8">
       {audioUrl && (
         <audio
           ref={audioRef}
@@ -1348,14 +1346,14 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
       )}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-sm font-black text-[#ffe4aa]">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-sm font-black text-[#f5a52a]">
             <Headphones size={16} />
             Ready to listen
           </div>
           <h1 className="max-w-3xl text-4xl font-black leading-tight text-balance sm:text-5xl">
             {episode.title}
           </h1>
-          <p className="mt-3 text-lg leading-8 text-[#f2dcc0]">
+          <p className="mt-3 text-lg leading-8 text-[#c8b89a]">
             A {episode.tone.toLowerCase()} {episode.length}{" "}
             {episode.format.toLowerCase()} for ages {episode.age} about{" "}
             {episode.topic}.
@@ -1363,7 +1361,7 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
         </div>
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="grid size-20 shrink-0 place-items-center rounded-full bg-[#ffb950] text-[#211c16] shadow-[0_16px_40px_rgba(255,185,80,0.3)]"
+          className="grid size-20 shrink-0 place-items-center rounded-full bg-[#e8820c] text-[#f5e6c8] shadow-[0_16px_40px_rgba(232,130,12,0.5)]"
         >
           {isPlaying ? (
             <Pause size={32} fill="currentColor" />
@@ -1384,7 +1382,7 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
               className="flex-1 rounded-full transition-all duration-75"
               style={{
                 height: `${height}%`,
-                backgroundColor: index < activeBars ? "#ffb950" : "#ffcf78",
+                backgroundColor: index < activeBars ? "#e8820c" : "#f5a52a",
                 opacity: index < activeBars ? 1 : isPlaying && index === activeBars ? 1 : 0.35,
                 transform: isPlaying && index === activeBars ? "scaleY(1.2)" : "scaleY(1)",
                 transformOrigin: "bottom",
@@ -1394,11 +1392,11 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
         </div>
         <div className="h-2 cursor-pointer overflow-hidden rounded-full bg-white/20" onClick={handleSeek}>
           <div
-            className="h-full rounded-full bg-[#ffb950] transition-all duration-100"
+            className="h-full rounded-full bg-[#e8820c] transition-all duration-100"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
-        <div className="mt-2 flex justify-between text-sm font-bold text-[#f2dcc0]">
+        <div className="mt-2 flex justify-between text-sm font-bold text-[#c8b89a]">
           <span>{formatTime(currentTime)}</span>
           <span>{duration ? formatTime(duration) : episode.length}</span>
         </div>
@@ -1418,23 +1416,23 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
 function LibraryScreen({ episodes, onCreate }) {
   return (
     <motion.section {...fadeUp} className="pb-10">
-      <div className="mb-6 flex flex-col justify-between gap-4 rounded-[34px] border border-white/80 bg-white/72 p-6 shadow-[0_24px_90px_rgba(143,98,35,0.14)] sm:flex-row sm:items-end sm:p-8">
+      <div className="mb-6 flex flex-col justify-between gap-4 rounded-[34px] border border-white/10 bg-[#1a2340]/80 p-6 shadow-[0_24px_90px_rgba(0,0,0,0.4)] sm:flex-row sm:items-end sm:p-8">
         <div>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#fff1cf] px-3 py-1.5 text-sm font-black text-[#8c5d14]">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#e8820c]/20 px-3 py-1.5 text-sm font-black text-[#f5a52a]">
             <Library size={16} />
             Saved for later
           </div>
           <h1 className="text-4xl font-black leading-tight sm:text-5xl">
             Your family audio shelf
           </h1>
-          <p className="mt-3 max-w-2xl text-lg leading-8 text-[#6f6253]">
+          <p className="mt-3 max-w-2xl text-lg leading-8 text-[#9e8e76]">
             Keep favorite stories, lessons, and calm learning moments ready for
             the next ride, bedtime, or burst of curiosity.
           </p>
         </div>
         <button
           onClick={onCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#211c16] px-5 py-4 font-black text-white"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0f1629] px-5 py-4 font-black text-white"
         >
           <Sparkles size={18} />
           Create new
@@ -1457,23 +1455,23 @@ function LibraryGrid({ episodes }) {
 
 function SavedEpisodeCard({ episode }) {
   return (
-    <article className="rounded-[28px] border border-white/80 bg-white/76 p-5 shadow-[0_18px_70px_rgba(126,92,40,0.11)] backdrop-blur">
+    <article className="rounded-[28px] border border-white/10 bg-[#1a2340]/80 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.35)] backdrop-blur">
       <div className="mb-5 flex items-start justify-between gap-4">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#e4f7fb] text-[#2a6a75]">
+        <div className="grid size-12 place-items-center rounded-2xl bg-[#e8820c]/20 text-[#f5a52a]">
           <Play size={21} fill="currentColor" />
         </div>
-        <span className="rounded-full bg-[#fff1cf] px-3 py-1 text-xs font-black text-[#8c5d14]">
+        <span className="rounded-full bg-[#e8820c]/20 px-3 py-1 text-xs font-black text-[#f5a52a]">
           {episode.date}
         </span>
       </div>
       <h2 className="text-2xl font-black leading-tight">{episode.title}</h2>
-      <p className="mt-1 text-xs font-medium text-[#b8a58f]">Tap to replay coming soon</p>
-      <p className="mt-2 text-sm font-bold text-[#8a725b]">{episode.topic}</p>
-      <p className="mt-4 text-sm font-semibold leading-6 text-[#6f6253]">
+      <p className="mt-1 text-xs font-medium text-[#4a5578]">Tap to replay coming soon</p>
+      <p className="mt-2 text-sm font-bold text-[#9e8e76]">{episode.topic}</p>
+      <p className="mt-4 text-sm font-semibold leading-6 text-[#9e8e76]">
         Ages {episode.age} · {episode.length} · {episode.situation} ·{" "}
         {episode.format}
       </p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-[#8a725b]">
+      <p className="mt-2 text-sm font-semibold leading-6 text-[#9e8e76]">
         {episode.voiceStyle || "Warm narrator"} ·{" "}
         {episode.learningDepth || "Balanced"}
       </p>
@@ -1483,9 +1481,9 @@ function SavedEpisodeCard({ episode }) {
 
 function SafetyNote() {
   return (
-    <section className="rounded-[26px] border border-[#d8ead7] bg-[#f3fbef] p-4 text-[#3f6438] shadow-[0_14px_50px_rgba(87,124,68,0.1)]">
+    <section className="rounded-[26px] border border-[#1e4a2a]/60 bg-[#0f2a1a] p-4 text-[#7de0a0] shadow-[0_14px_50px_rgba(0,0,0,0.3)]">
       <div className="flex gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white text-[#4f8a45]">
+        <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white text-[#7de0a0]">
           <ShieldCheck size={21} />
         </div>
         <div>
@@ -1506,7 +1504,7 @@ function Tag({ children, dark = false }) {
   return (
     <span
       className={`rounded-full px-3 py-1.5 text-sm font-black ${
-        dark ? "bg-white/12 text-[#ffe4aa]" : "bg-[#fff1cf] text-[#8c5d14]"
+        dark ? "bg-white/12 text-[#f5a52a]" : "bg-[#e8820c]/20 text-[#f5a52a]"
       }`}
     >
       {children}
