@@ -1004,7 +1004,7 @@ const voiceProfiles = [
   {
     id: "Calm narrator",
     emoji: "🎙️",
-    label: "Calm Narrator",
+    label: "Iman",
     description: "Soothing, measured, gentle",
     bestFor: "Bedtime, relaxation",
   },

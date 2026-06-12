@@ -7,7 +7,7 @@ const voiceMap = {
   "Warm female voice": "ThT5KcBeYPX3keUQqHPh",      // Dorothy
   "Warm male voice": "TX3LPaxmHKxFdv7VOQHJ",          // Liam
   "Animated storyteller": "jBpfuIE2acCO8z3wKNLl",     // Gigi
-  "Calm narrator": "onwK4e9ZLuTAKqWW03F9",             // Daniel
+  "Calm narrator": "tKZElWEODX58dXiptROX",             // Iman
   "Teacher-style guide": "N2lVS1w4EtoT3dr4eOWO",      // Callum
 };
 
