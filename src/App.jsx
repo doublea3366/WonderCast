@@ -983,8 +983,8 @@ const voiceProfiles = [
   {
     id: "Warm female voice",
     emoji: "👩",
-    label: "Warm & Friendly",
-    description: "Nurturing, clear, reassuring",
+    label: "Dorothy",
+    description: "Warm, British, inviting",
     bestFor: "All ages, bedtime",
   },
   {

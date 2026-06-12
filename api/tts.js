@@ -4,14 +4,14 @@ const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 
 // ElevenLabs voice IDs mapped to WonderCast voice styles
 const voiceMap = {
-  "Warm female voice": "EXAVITQu4vr4xnSDxMaL",      // Sarah
+  "Warm female voice": "ThT5KcBeYPX3keUQqHPh",      // Dorothy
   "Warm male voice": "TX3LPaxmHKxFdv7VOQHJ",          // Liam
   "Animated storyteller": "jBpfuIE2acCO8z3wKNLl",     // Gigi
   "Calm narrator": "onwK4e9ZLuTAKqWW03F9",             // Daniel
   "Teacher-style guide": "N2lVS1w4EtoT3dr4eOWO",      // Callum
 };
 
-const defaultVoiceId = "EXAVITQu4vr4xnSDxMaL"; // Sarah
+const defaultVoiceId = "ThT5KcBeYPX3keUQqHPh"; // Dorothy
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
