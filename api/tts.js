@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { script, voiceStyle } = req.body;
+  const { script, voiceStyle, voiceSpeed = 1.0, voiceExpression = 0.3, voiceEnergy = 0.5 } = req.body;
 
   if (!script) {
     return res.status(400).json({ error: "script is required" });
@@ -36,9 +36,10 @@ export default async function handler(req, res) {
       model_id: "eleven_turbo_v2_5",
       output_format: "mp3_44100_128",
       voice_settings: {
-        stability: 0.5,
+        stability: Math.max(0, Math.min(1, 1 - voiceEnergy)),   // energy → inverted stability
         similarity_boost: 0.75,
-        style: 0.3,
+        style: Math.max(0, Math.min(1, voiceExpression)),
+        speed: Math.max(0.7, Math.min(1.3, voiceSpeed)),
         use_speaker_boost: true,
       },
     });

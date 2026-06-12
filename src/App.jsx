@@ -474,6 +474,10 @@ function App() {
   const [preview, setPreview] = useState(null);
   const [episode, setEpisode] = useState(null);
   const [savedEpisodes, setSavedEpisodes] = useState(starterEpisodes);
+  const [wizardStep, setWizardStep] = useState(1); // 1 = content, 2 = voice
+  const [voiceSpeed, setVoiceSpeed] = useState(1.0);
+  const [voiceExpression, setVoiceExpression] = useState(0.3);
+  const [voiceEnergy, setVoiceEnergy] = useState(0.5);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -683,7 +687,7 @@ function App() {
       const response = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: preview.script, voiceStyle: settings.voiceStyle }),
+        body: JSON.stringify({ script: preview.script, voiceStyle: settings.voiceStyle, voiceSpeed, voiceExpression, voiceEnergy }),
       });
 
       if (!response.ok) throw new Error("TTS failed");
@@ -714,6 +718,7 @@ function App() {
     setPreview(null);
     setEpisode(null);
     setIsPlaying(false);
+    setWizardStep(1);
     setView("create");
   }
 
@@ -741,6 +746,11 @@ function App() {
                     complexityDismissed={complexityDismissed}
                     setComplexityDismissed={setComplexityDismissed}
                     onCreate={createPreview}
+                    wizardStep={wizardStep}
+                    setWizardStep={setWizardStep}
+                    voiceSpeed={voiceSpeed} setVoiceSpeed={setVoiceSpeed}
+                    voiceExpression={voiceExpression} setVoiceExpression={setVoiceExpression}
+                    voiceEnergy={voiceEnergy} setVoiceEnergy={setVoiceEnergy}
                   />
                 )}
                 {view === "preview" && preview && (
@@ -795,98 +805,174 @@ function App() {
 }
 
 function CreateScreen({
-  settings,
-  updateSetting,
-  updateAge,
-  advancedOpen,
-  setAdvancedOpen,
-  isCreating,
-  topicSafetyBlock,
-  complexityCheck,
-  complexityDismissed,
-  setComplexityDismissed,
+  settings, updateSetting, updateAge,
+  advancedOpen, setAdvancedOpen,
+  isCreating, topicSafetyBlock,
+  complexityCheck, complexityDismissed, setComplexityDismissed,
   onCreate,
+  wizardStep, setWizardStep,
+  voiceSpeed, setVoiceSpeed,
+  voiceExpression, setVoiceExpression,
+  voiceEnergy, setVoiceEnergy,
 }) {
   const isBlocked = complexityCheck?.tier === "block";
-  const canCreate = settings.topic.trim().length > 1 && !isBlocked;
+  const canAdvance = settings.topic.trim().length > 1 && !isBlocked && !topicSafetyBlock;
 
   return (
     <motion.section {...fadeUp} className="pb-10">
       <TopTrustCard />
 
-      <div className="mt-5 grid gap-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
-        <div className="rounded-[34px] border border-[#E7B05E]/30 bg-white/70 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.4)] backdrop-blur sm:p-7 lg:p-8">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full bg-[#E7B05E]/30 px-3 py-1.5 text-sm font-bold text-[#A74921]">
-            <Stars size={16} />
-            Less screen time. More learning. Easier parenting.
-          </div>
-
-          <h1 className="max-w-3xl text-4xl font-black leading-[1.03] tracking-normal text-balance text-[#1B203A] sm:text-5xl lg:text-6xl">
-            What should your child learn today?
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#7F3E28]">
-            Personalized audio adventures and lessons for curious kids, made
-            for car rides, bedtime, and everyday curiosity.
-          </p>
-
-          <div className="mt-7">
-            <AgeSelector value={settings.age} onChange={updateAge} />
-          </div>
-
-          {/* Voice selector */}
-          <div className="mt-7">
-            <VoiceSelector value={settings.voiceStyle} onChange={(v) => updateSetting("voiceStyle", v)} />
-          </div>
-
-          {/* Smart scroll hint — mobile only, disappears once topic typed or advanced opened */}
-          {!settings.topic.trim() && !advancedOpen && (
-            <div className="mt-4 flex items-center justify-center gap-1.5 lg:hidden">
-              <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
-              <p className="text-xs font-semibold text-[#7F3E28]/70">Tune tone, length &amp; more below</p>
-              <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
-            </div>
-          )}
-
-          <HeroInput
-            value={settings.topic}
-            onChange={(value) => updateSetting("topic", value)}
-            topicSafetyBlock={topicSafetyBlock}
-            complexityCheck={complexityCheck}
-            complexityDismissed={complexityDismissed}
-            onDismissComplexity={() => setComplexityDismissed(true)}
-          />
-
-          <div className="mt-7">
-            <CreateButton
-              disabled={!canCreate || isCreating || Boolean(topicSafetyBlock)}
-              isCreating={isCreating}
-              onClick={onCreate}
-            />
-            <p className="mt-3 text-sm font-medium text-[#7F3E28]">
-              Format, length, tone and more can be tuned below.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormatToggle
-              value={settings.format}
-              onChange={(value) => updateSetting("format", value)}
-            />
-            <LengthSelector
-              value={settings.length}
-              onChange={(value) => updateSetting("length", value)}
-            />
-          </div>
-          <AdvancedControls
-            settings={settings}
-            updateSetting={updateSetting}
-            open={advancedOpen}
-            setOpen={setAdvancedOpen}
-          />
-        </div>
+      {/* Step indicator */}
+      <div className="mt-5 mb-6 flex items-center justify-center gap-3">
+        {[1, 2].map((s) => (
+          <React.Fragment key={s}>
+            <button
+              onClick={() => s < wizardStep && setWizardStep(s)}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black transition ${
+                wizardStep === s
+                  ? "bg-[#1B203A] text-white shadow-sm"
+                  : s < wizardStep
+                  ? "bg-[#E7B05E]/40 text-[#7F3E28] hover:bg-[#E7B05E]/60 cursor-pointer"
+                  : "bg-white/50 text-[#A74921]/40 cursor-default"
+              }`}
+            >
+              <span className={`grid size-5 place-items-center rounded-full text-xs ${wizardStep === s ? "bg-white/20" : s < wizardStep ? "bg-[#A74921]/20" : "bg-white/30"}`}>{s}</span>
+              {s === 1 ? "Story & Style" : "Voice & Sound"}
+            </button>
+            {s === 1 && <ChevronRight size={16} className="text-[#A74921]/40 shrink-0" />}
+          </React.Fragment>
+        ))}
       </div>
+
+      <AnimatePresence mode="wait">
+        {wizardStep === 1 && (
+          <motion.div key="step1" {...fadeUp}>
+            <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
+              {/* Left — main inputs */}
+              <div className="rounded-[34px] border border-[#E7B05E]/30 bg-white/70 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur sm:p-7 lg:p-8">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#E7B05E]/30 px-3 py-1.5 text-sm font-bold text-[#A74921]">
+                  <Stars size={16} />
+                  Less screen time. More learning. Easier parenting.
+                </div>
+                <h1 className="text-4xl font-black leading-tight text-balance text-[#1B203A] sm:text-5xl">
+                  What should your child learn today?
+                </h1>
+                <p className="mt-3 text-lg leading-8 text-[#7F3E28]">
+                  Pick their age, choose a situation, and type any topic.
+                </p>
+
+                <div className="mt-7">
+                  <AgeSelector value={settings.age} onChange={updateAge} />
+                </div>
+
+                <HeroInput
+                  value={settings.topic}
+                  onChange={(value) => updateSetting("topic", value)}
+                  topicSafetyBlock={topicSafetyBlock}
+                  complexityCheck={complexityCheck}
+                  complexityDismissed={complexityDismissed}
+                  onDismissComplexity={() => setComplexityDismissed(true)}
+                />
+
+                <div className="mt-7">
+                  <button
+                    disabled={!canAdvance}
+                    onClick={() => setWizardStep(2)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#1B203A] px-6 py-4 text-base font-black text-white shadow-[0_18px_36px_rgba(27,32,58,0.3)] transition hover:bg-[#2a3050] disabled:cursor-not-allowed disabled:bg-[#c7b8a5] sm:w-auto"
+                  >
+                    Next: Choose a voice <ChevronRight size={20} />
+                  </button>
+                  <p className="mt-3 text-sm font-medium text-[#7F3E28]">
+                    You'll pick a voice and fine-tune the sound in the next step.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right — style controls */}
+              <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormatToggle value={settings.format} onChange={(v) => updateSetting("format", v)} />
+                  <LengthSelector value={settings.length} onChange={(v) => updateSetting("length", v)} />
+                </div>
+                <AdvancedControls
+                  settings={settings}
+                  updateSetting={updateSetting}
+                  open={advancedOpen}
+                  setOpen={setAdvancedOpen}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {wizardStep === 2 && (
+          <motion.div key="step2" {...fadeUp}>
+            <div className="grid gap-6 lg:grid-cols-[1fr_0.65fr] lg:items-start">
+              {/* Left — voice picker */}
+              <div className="rounded-[34px] border border-[#E7B05E]/30 bg-white/70 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.08)] backdrop-blur sm:p-7">
+                <h2 className="mb-2 text-2xl font-black text-[#1B203A]">Who's telling the story?</h2>
+                <p className="mb-7 text-base font-medium text-[#7F3E28]">
+                  Press play on any voice to hear a short sample, then pick the one that feels right.
+                </p>
+                <VoicePickerWithPreview
+                  value={settings.voiceStyle}
+                  onChange={(v) => updateSetting("voiceStyle", v)}
+                />
+              </div>
+
+              {/* Right — sliders + generate */}
+              <div className="space-y-4">
+                <div className="rounded-[28px] border border-[#E7B05E]/30 bg-white/70 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.08)] backdrop-blur">
+                  <h3 className="mb-5 font-black text-[#1B203A]">Fine-tune the sound</h3>
+                  <div className="space-y-6">
+                    <VoiceSlider
+                      label="Speed"
+                      leftLabel="Slower"
+                      rightLabel="Faster"
+                      min={0.7} max={1.3} step={0.05}
+                      value={voiceSpeed}
+                      onChange={setVoiceSpeed}
+                      defaultValue={1.0}
+                    />
+                    <VoiceSlider
+                      label="Expression"
+                      leftLabel="Calm"
+                      rightLabel="Expressive"
+                      min={0} max={1} step={0.05}
+                      value={voiceExpression}
+                      onChange={setVoiceExpression}
+                      defaultValue={0.3}
+                    />
+                    <VoiceSlider
+                      label="Energy"
+                      leftLabel="Gentle"
+                      rightLabel="Energetic"
+                      min={0} max={1} step={0.05}
+                      value={voiceEnergy}
+                      onChange={setVoiceEnergy}
+                      defaultValue={0.5}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-[#E7B05E]/30 bg-white/70 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.08)] backdrop-blur">
+                  <CreateButton
+                    disabled={isCreating}
+                    isCreating={isCreating}
+                    onClick={onCreate}
+                  />
+                  <button
+                    onClick={() => setWizardStep(1)}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f5d8b8] px-5 py-3 text-sm font-black text-[#7F3E28] transition hover:bg-[#E7B05E]/40"
+                  >
+                    ← Back to story settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.section>
   );
 }
@@ -1046,6 +1132,138 @@ function VoiceSelector({ value, onChange }) {
             <span className={`mt-0.5 rounded-full px-2 py-0.5 text-[10px] font-black ${value === id ? "bg-[#A74921] text-white" : "bg-[#E7B05E]/30 text-[#7F3E28]"}`}>{bestFor}</span>
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Maps voice style label → ElevenLabs voice ID (must match api/tts.js)
+const voiceIdMap = {
+  "Warm female voice":    "ThT5KcBeYPX3keUQqHPh", // Dorothy
+  "Warm male voice":      "TX3LPaxmHKxFdv7VOQHJ", // Liam
+  "Animated storyteller": "jBpfuIE2acCO8z3wKNLl", // Gigi
+  "Calm narrator":        "tKZElWEODX58dXiptROX",  // Iman
+  "Teacher-style guide":  "N2lVS1w4EtoT3dr4eOWO",  // Callum
+};
+
+function VoicePickerWithPreview({ value, onChange }) {
+  const [playingId, setPlayingId] = React.useState(null);
+  const [loadingId, setLoadingId] = React.useState(null);
+  const audioRefs = React.useRef({});
+
+  async function handlePreview(voiceStyleId) {
+    const voiceId = voiceIdMap[voiceStyleId];
+    if (!voiceId) return;
+
+    // Stop any currently playing
+    Object.values(audioRefs.current).forEach(a => { if (a) { a.pause(); a.currentTime = 0; } });
+
+    if (playingId === voiceStyleId) {
+      setPlayingId(null);
+      return;
+    }
+
+    setLoadingId(voiceStyleId);
+    try {
+      const res = await fetch(`/api/voice-preview?voiceId=${voiceId}`);
+      if (!res.ok) throw new Error("Preview failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRefs.current[voiceStyleId] = audio;
+      audio.onended = () => setPlayingId(null);
+      audio.play();
+      setPlayingId(voiceStyleId);
+    } catch {
+      // Fail silently
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+      {voiceProfiles.map(({ id, emoji, label, description, bestFor }) => {
+        const isSelected = value === id;
+        const isPlaying = playingId === id;
+        const isLoading = loadingId === id;
+
+        return (
+          <div
+            key={id}
+            onClick={() => onChange(id)}
+            className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${
+              isSelected
+                ? "border-[#A74921] bg-[#A74921]/10 shadow-sm"
+                : "border-[#E7B05E]/40 bg-[#f5d8b8]/20 hover:bg-white hover:border-[#E7B05E]"
+            }`}
+          >
+            {/* Selected indicator */}
+            <div className={`absolute right-3 top-3 grid size-5 place-items-center rounded-full transition ${isSelected ? "bg-[#A74921]" : "bg-transparent border border-[#E7B05E]/40"}`}>
+              {isSelected && <Check size={11} className="text-white" />}
+            </div>
+
+            {/* Emoji + info */}
+            <div className="flex flex-col items-center gap-1 w-10 shrink-0">
+              <span className="text-3xl">{emoji}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`font-black ${isSelected ? "text-[#A74921]" : "text-[#1B203A]"}`}>{label}</p>
+              <p className="text-xs font-semibold text-[#7F3E28]">{description}</p>
+              <p className={`mt-1 text-[10px] font-black rounded-full inline-block px-2 py-0.5 ${isSelected ? "bg-[#A74921] text-white" : "bg-[#E7B05E]/30 text-[#7F3E28]"}`}>{bestFor}</p>
+            </div>
+
+            {/* Play button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); handlePreview(id); }}
+              aria-label={isPlaying ? `Stop ${label} preview` : `Preview ${label} voice`}
+              className={`shrink-0 grid size-10 place-items-center rounded-full border-2 transition ${
+                isPlaying
+                  ? "border-[#A74921] bg-[#A74921] text-white"
+                  : "border-[#E7B05E] bg-white text-[#A74921] hover:bg-[#A74921] hover:text-white hover:border-[#A74921]"
+              }`}
+            >
+              {isLoading ? (
+                <RefreshCw size={14} className="animate-spin" />
+              ) : isPlaying ? (
+                <Pause size={14} fill="currentColor" />
+              ) : (
+                <Play size={14} fill="currentColor" />
+              )}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function VoiceSlider({ label, leftLabel, rightLabel, min, max, step, value, onChange, defaultValue }) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-sm font-black text-[#1B203A]">{label}</p>
+        <button
+          onClick={() => onChange(defaultValue)}
+          className="text-[10px] font-black text-[#A74921]/60 hover:text-[#A74921] transition"
+        >
+          Reset
+        </button>
+      </div>
+      <input
+        type="range"
+        min={min} max={max} step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-2 rounded-full appearance-none cursor-pointer"
+        style={{
+          background: `linear-gradient(to right, #A74921 ${pct}%, #E7B05E40 ${pct}%)`,
+        }}
+      />
+      <div className="mt-1.5 flex justify-between text-xs font-semibold text-[#7F3E28]">
+        <span>{leftLabel}</span>
+        <span>{rightLabel}</span>
       </div>
     </div>
   );

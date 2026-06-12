@@ -2,7 +2,8 @@
   "functions": {
     "api/tts.js": { "maxDuration": 60 },
     "api/generate.js": { "maxDuration": 30 },
-    "api/check-topic.js": { "maxDuration": 15 }
+    "api/check-topic.js": { "maxDuration": 15 },
+    "api/voice-preview.js": { "maxDuration": 20 }
   },
   "rewrites": [
     { "source": "/how-it-works", "destination": "/index.html" },
