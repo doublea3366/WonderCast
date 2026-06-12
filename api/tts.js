@@ -24,6 +24,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "script is required" });
   }
 
+  if (script.length > 15000) {
+    return res.status(400).json({ error: "Script is too long for audio generation." });
+  }
+
   const voiceId = voiceMap[voiceStyle] || defaultVoiceId;
 
   try {
@@ -52,6 +56,6 @@ export default async function handler(req, res) {
     return res.status(200).send(buffer);
   } catch (error) {
     console.error("TTS error:", error);
-    return res.status(500).json({ error: "Failed to generate audio", detail: error.message });
+    return res.status(500).json({ error: "Failed to generate audio. Please try again." });
   }
 }

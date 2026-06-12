@@ -472,14 +472,47 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [audioError, setAudioError] = useState(null);
   const [showScript, setShowScript] = useState(false);
   const [previewFromApi, setPreviewFromApi] = useState(false);
   const [previewError, setPreviewError] = useState(null);
-  const [complexityCheck, setComplexityCheck] = useState(null); // { tier, message, suggestion }
+  const [complexityCheck, setComplexityCheck] = useState(null);
   const [complexityDismissed, setComplexityDismissed] = useState(false);
   const [showComplexityModal, setShowComplexityModal] = useState(false);
   const complexityTimer = React.useRef(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  // Dynamic page title
+  React.useEffect(() => {
+    const titles = {
+      create: "WonderCast — Screen-Free Audio Learning for Curious Kids",
+      preview: preview?.title ? `Preview: ${preview.title} — WonderCast` : "Preview — WonderCast",
+      listen: episode?.title ? `${episode.title} — WonderCast` : "Listen — WonderCast",
+      library: "Your Library — WonderCast",
+    };
+    document.title = titles[view] || "WonderCast";
+  }, [view, preview?.title, episode?.title]);
+
+  // localStorage persistence for saved episodes
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("wondercast_episodes");
+      if (stored) setSavedEpisodes(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("wondercast_episodes", JSON.stringify(savedEpisodes));
+    } catch {}
+  }, [savedEpisodes]);
+
+  // Revoke blob URLs to prevent memory leaks
+  React.useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
 
   const topicSafetyBlock = useMemo(() => getSafetyBlock(settings), [settings]);
 
@@ -522,6 +555,10 @@ function App() {
       age,
       ...agePresets[age],
     }));
+    // Reset complexity check — what's too complex for a 3yo may be fine for a 15yo
+    setComplexityCheck(null);
+    setComplexityDismissed(false);
+    clearTimeout(complexityTimer.current);
   }
 
   async function createPreview() {
@@ -649,9 +686,11 @@ function App() {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
+      setAudioError(null);
     } catch (error) {
       console.error("TTS error:", error);
       setAudioUrl(null);
+      setAudioError("Audio couldn't be generated — the script was created but voice synthesis failed. You can try again or go back and regenerate.");
     }
 
     setEpisode(nextEpisode);
@@ -728,11 +767,13 @@ function App() {
               key="listen"
               episode={episode}
               audioUrl={audioUrl}
+              audioError={audioError}
               isPlaying={isPlaying}
               setIsPlaying={setIsPlaying}
               onSave={saveEpisode}
               saved={savedEpisodes.some((item) => item.id === episode.id)}
               onCreateAnother={createAnother}
+              onRetryAudio={() => { setView("preview"); setAudioError(null); }}
             />
           )}
 
@@ -1388,14 +1429,28 @@ function LearningPoints({ title = "What your child will learn", points }) {
 function ListenScreen({
   episode,
   audioUrl,
+  audioError,
   isPlaying,
   setIsPlaying,
   onSave,
   saved,
   onCreateAnother,
+  onRetryAudio,
 }) {
   return (
     <motion.section {...fadeUp} className="mx-auto max-w-5xl pb-10">
+      {audioError && (
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-red-300 bg-red-50 p-4">
+          <ShieldAlert className="mt-0.5 shrink-0 text-red-500" size={19} />
+          <div className="flex-1">
+            <p className="text-sm font-black text-red-700">Audio generation failed</p>
+            <p className="mt-1 text-sm font-semibold text-red-600">{audioError}</p>
+          </div>
+          <button onClick={onRetryAudio} className="shrink-0 rounded-full bg-red-100 px-3 py-1.5 text-xs font-black text-red-700 hover:bg-red-200 transition">
+            Try again
+          </button>
+        </div>
+      )}
       <AudioPlayerCard
         episode={episode}
         audioUrl={audioUrl}
@@ -1454,12 +1509,14 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
   const [duration, setDuration] = React.useState(0);
 
   React.useEffect(() => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlaying) {
-      audioRef.current.play().catch(() => setIsPlaying(false));
+      audio.play().catch(() => setIsPlaying(false));
     } else {
-      audioRef.current.pause();
+      audio.pause();
     }
+    return () => { audio.pause(); };
   }, [isPlaying]);
 
   function handleSeek(e) {
@@ -1501,6 +1558,7 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
         </div>
         <button
           onClick={() => setIsPlaying(!isPlaying)}
+          aria-label={isPlaying ? "Pause episode" : "Play episode"}
           className="grid size-20 shrink-0 place-items-center rounded-full bg-[#A74921] text-[#1B203A] shadow-[0_16px_40px_rgba(231,176,94,0.5)]"
         >
           {isPlaying ? (

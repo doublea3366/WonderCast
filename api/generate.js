@@ -37,6 +37,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "topic and age are required" });
   }
 
+  if (topic.trim().length > 300) {
+    return res.status(400).json({ error: "Topic is too long. Please keep it under 300 characters." });
+  }
+
   const topicLower = topic.toLowerCase();
   if (BLOCKED_TERMS.some((term) => topicLower.includes(term))) {
     return res.status(400).json({
@@ -94,6 +98,6 @@ Only respond with valid JSON. No markdown, no explanation outside the JSON.`;
     return res.status(200).json(parsed);
   } catch (error) {
     console.error("Generation error:", error);
-    return res.status(500).json({ error: "Failed to generate episode", detail: error.message });
+    return res.status(500).json({ error: "Failed to generate episode. Please try again." });
   }
 }
