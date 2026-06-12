@@ -1,5 +1,10 @@
 import React, { useMemo, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import AppNav from "./components/AppNav.jsx";
+import HowItWorksPage from "./pages/HowItWorksPage.jsx";
+import ForFamiliesPage from "./pages/ForFamiliesPage.jsx";
+import FAQPage from "./pages/FAQPage.jsx";
 import {
   BadgeCheck,
   BookOpen,
@@ -716,115 +721,76 @@ function App() {
     <main className="overflow-hidden bg-[#FCE7CF] text-[#1B203A]">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_right,#E7B05E44_0,transparent_40%),radial-gradient(circle_at_bottom_left,#A7492122_0,transparent_40%),linear-gradient(180deg,#FCE7CF_0%,#f5d8b8_100%)]" />
       <div className="relative mx-auto min-h-screen w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <AppNav view={view} setView={setView} />
+        <AppNav />
 
-        <AnimatePresence mode="wait">
-          {view === "create" && (
-            <CreateScreen
-              key="create"
-              settings={settings}
-              updateSetting={updateSetting}
-              updateAge={updateAge}
-              advancedOpen={advancedOpen}
-              setAdvancedOpen={setAdvancedOpen}
-              isCreating={isCreating}
-              topicSafetyBlock={topicSafetyBlock}
-              complexityCheck={complexityCheck}
-              complexityDismissed={complexityDismissed}
-              setComplexityDismissed={setComplexityDismissed}
-              onCreate={createPreview}
-            />
-          )}
-          {showComplexityModal && complexityCheck?.tier === "block" && (
-            <ComplexityModal
-              check={complexityCheck}
-              onDismiss={() => {
-                setShowComplexityModal(false);
-                setComplexityDismissed(true);
-              }}
-              onEdit={() => setShowComplexityModal(false)}
-            />
-          )}
-
-          {view === "preview" && preview && (
-            <PreviewScreen
-              key="preview"
-              preview={preview}
-              settings={settings}
-              showScript={showScript}
-              setShowScript={setShowScript}
-              onGenerate={generateAudio}
-              isGeneratingAudio={isGeneratingAudio}
-              previewFromApi={previewFromApi}
-              previewError={previewError}
-              onEdit={() => setView("create")}
-              onRegenerate={regeneratePreview}
-            />
-          )}
-
-          {view === "listen" && episode && (
-            <ListenScreen
-              key="listen"
-              episode={episode}
-              audioUrl={audioUrl}
-              audioError={audioError}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              onSave={saveEpisode}
-              saved={savedEpisodes.some((item) => item.id === episode.id)}
-              onCreateAnother={createAnother}
-              onRetryAudio={() => { setView("preview"); setAudioError(null); }}
-            />
-          )}
-
-          {view === "library" && (
-            <LibraryScreen
-              key="library"
-              episodes={savedEpisodes}
-              onCreate={() => setView("create")}
-            />
-          )}
-        </AnimatePresence>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <AnimatePresence mode="wait">
+                {view === "create" && (
+                  <CreateScreen
+                    key="create"
+                    settings={settings}
+                    updateSetting={updateSetting}
+                    updateAge={updateAge}
+                    advancedOpen={advancedOpen}
+                    setAdvancedOpen={setAdvancedOpen}
+                    isCreating={isCreating}
+                    topicSafetyBlock={topicSafetyBlock}
+                    complexityCheck={complexityCheck}
+                    complexityDismissed={complexityDismissed}
+                    setComplexityDismissed={setComplexityDismissed}
+                    onCreate={createPreview}
+                  />
+                )}
+                {view === "preview" && preview && (
+                  <PreviewScreen
+                    key="preview"
+                    preview={preview}
+                    settings={settings}
+                    showScript={showScript}
+                    setShowScript={setShowScript}
+                    onGenerate={generateAudio}
+                    isGeneratingAudio={isGeneratingAudio}
+                    previewFromApi={previewFromApi}
+                    previewError={previewError}
+                    onEdit={() => setView("create")}
+                    onRegenerate={regeneratePreview}
+                  />
+                )}
+                {view === "listen" && episode && (
+                  <ListenScreen
+                    key="listen"
+                    episode={episode}
+                    audioUrl={audioUrl}
+                    audioError={audioError}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    onSave={saveEpisode}
+                    saved={savedEpisodes.some((item) => item.id === episode.id)}
+                    onCreateAnother={createAnother}
+                    onRetryAudio={() => { setView("preview"); setAudioError(null); }}
+                  />
+                )}
+              </AnimatePresence>
+              {showComplexityModal && complexityCheck?.tier === "block" && (
+                <ComplexityModal
+                  check={complexityCheck}
+                  onDismiss={() => { setShowComplexityModal(false); setComplexityDismissed(true); }}
+                  onEdit={() => setShowComplexityModal(false)}
+                />
+              )}
+            </>
+          } />
+          <Route path="/library" element={
+            <LibraryScreen episodes={savedEpisodes} onCreate={() => {}} />
+          } />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/for-families" element={<ForFamiliesPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+        </Routes>
       </div>
-
-      {/* Static landing content — visible to crawlers and new visitors */}
-      {view === "create" && <LandingContent />}
     </main>
-  );
-}
-
-function AppNav({ view, setView }) {
-  return (
-    <nav className="mb-6 flex flex-col gap-4 rounded-[28px] border border-[#E7B05E]/30 bg-white/70 p-3 shadow-[0_18px_70px_rgba(0,0,0,0.4)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-      <button
-        onClick={() => setView("create")}
-        className="flex items-center gap-3 text-left"
-      >
-        <img src="/logo.png" alt="WonderCast" className="size-12 rounded-2xl object-cover" />
-        <div>
-          <p className="text-xl font-bold leading-tight text-[#1B203A]">WonderCast</p>
-          <p className="text-sm font-medium text-[#7F3E28]">
-            Screen-free learning for curious kids
-          </p>
-        </div>
-      </button>
-
-      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#A74921] bg-[#E7B05E]/40 p-1.5">
-        {["create", "library"].map((item) => (
-          <button
-            key={item}
-            onClick={() => setView(item)}
-            className={`rounded-xl px-4 py-2.5 text-sm font-bold capitalize transition ${
-              view === item
-                ? "bg-[#A74921] text-white shadow-sm"
-                : "text-[#7F3E28] hover:text-[#1B203A]"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
-    </nav>
   );
 }
 
@@ -1614,7 +1580,7 @@ function AudioPlayerCard({ episode, audioUrl, isPlaying, setIsPlaying }) {
   );
 }
 
-function LibraryScreen({ episodes, onCreate }) {
+function LibraryScreen({ episodes }) {
   return (
     <motion.section {...fadeUp} className="pb-10">
       <div className="mb-6 flex flex-col justify-between gap-4 rounded-[34px] border border-[#E7B05E]/30 bg-white/70 p-6 shadow-[0_24px_90px_rgba(0,0,0,0.4)] sm:flex-row sm:items-end sm:p-8">
@@ -1627,17 +1593,17 @@ function LibraryScreen({ episodes, onCreate }) {
             Your family audio shelf
           </h1>
           <p className="mt-3 max-w-2xl text-lg leading-8 text-[#7F3E28]">
-            Keep favorite stories, lessons, and calm learning moments ready for
+            Keep favourite stories, lessons, and calm learning moments ready for
             the next ride, bedtime, or burst of curiosity.
           </p>
         </div>
-        <button
-          onClick={onCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1B203A] px-5 py-4 font-black text-white"
+        <a
+          href="/"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1B203A] px-5 py-4 font-black text-white transition hover:bg-[#2a3050]"
         >
           <Sparkles size={18} />
           Create new
-        </button>
+        </a>
       </div>
       <LibraryGrid episodes={episodes} />
     </motion.section>
@@ -1735,123 +1701,6 @@ function ComplexityModal({ check, onDismiss, onEdit }) {
   );
 }
 
-function LandingContent() {
-  return (
-    <div className="relative border-t border-[#E7B05E]/30 bg-[#FCE7CF]">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-
-        {/* How it works */}
-        <section aria-labelledby="how-it-works" className="mb-24">
-          <h2 id="how-it-works" className="mb-3 text-center text-sm font-black uppercase tracking-[0.15em] text-[#A74921]">How it works</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-3xl font-black leading-tight text-[#1B203A] sm:text-4xl">
-            A personalised audio episode in under a minute
-          </p>
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              { step: "1", title: "Set your child's age and topic", body: "Choose an age band from 3 to 16. WonderCast automatically adjusts vocabulary, length, tone, and learning depth. Then type any topic — from dinosaurs to how rain works." },
-              { step: "2", title: "Review the AI-generated script", body: "WonderCast uses Claude AI to write a fact-aware script tailored to your child. You can preview the full script, regenerate it, or adjust the format before committing." },
-              { step: "3", title: "Play it anywhere, screen-free", body: "ElevenLabs converts the script into natural-sounding audio with a voice matched to the situation. Play it on car rides, at bedtime, or during any quiet moment." },
-            ].map(({ step, title, body }) => (
-              <div key={step} className="rounded-[28px] border border-[#E7B05E]/30 bg-white/60 p-7 backdrop-blur">
-                <div className="mb-4 inline-flex size-10 items-center justify-center rounded-full bg-[#A74921] text-sm font-black text-white">{step}</div>
-                <h3 className="mb-3 text-xl font-black text-[#1B203A]">{title}</h3>
-                <p className="text-base font-medium leading-7 text-[#7F3E28]">{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Why WonderCast */}
-        <section aria-labelledby="why-wondercast" className="mb-24">
-          <h2 id="why-wondercast" className="mb-3 text-center text-sm font-black uppercase tracking-[0.15em] text-[#A74921]">Why WonderCast</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-3xl font-black leading-tight text-[#1B203A] sm:text-4xl">
-            Learning that fits around your family
-          </p>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: "🎧", title: "Fully screen-free", body: "Audio-only means no screen time. Kids listen and imagine — better for attention, sleep, and creativity than video-based learning." },
-              { icon: "🛡️", title: "Built safe from the ground up", body: "Every episode passes child-safe content filters before generation. Topics are age-checked, language is age-appropriate, and sensitive subjects are blocked automatically." },
-              { icon: "✨", title: "Personalised to your child", body: "Not a library of pre-made content — every episode is generated fresh for your child's exact age, curiosity, and the situation you're in right now." },
-              { icon: "⚡", title: "Ready in seconds", body: "No subscription box to wait for. No playlist to curate. Type a topic, press create, and your child has a brand new audio episode ready to play." },
-            ].map(({ icon, title, body }) => (
-              <div key={title} className="rounded-[28px] border border-[#E7B05E]/30 bg-white/60 p-6 backdrop-blur">
-                <span className="mb-4 block text-3xl">{icon}</span>
-                <h3 className="mb-2 text-lg font-black text-[#1B203A]">{title}</h3>
-                <p className="text-sm font-medium leading-6 text-[#7F3E28]">{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Who it's for */}
-        <section aria-labelledby="who-its-for" className="mb-24">
-          <h2 id="who-its-for" className="mb-3 text-center text-sm font-black uppercase tracking-[0.15em] text-[#A74921]">Who it's for</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-3xl font-black leading-tight text-[#1B203A] sm:text-4xl">
-            Made for every age, every moment
-          </p>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { age: "Ages 3–6", label: "Early learners", body: "Short, warm stories with simple language and gentle repetition. Perfect for bedtime wind-downs or morning car rides. Topics like animals, colours, kindness, and the natural world." },
-              { age: "Ages 7–10", label: "Curious explorers", body: "Longer adventures and fun lessons on history, science, and how things work. Ideal for school-age children who ask 'but why?' about everything." },
-              { age: "Ages 11–16", label: "Independent thinkers", body: "In-depth lessons on complex topics — geography, biology, current events, study help, and more. Content that treats them like the smart young people they are." },
-              { icon: "🚗", label: "Car rides", body: "Keep kids engaged on long journeys without screens. WonderCast episodes are designed to hold attention on the go — energetic pacing, clear narration, and natural cliff-hangers." },
-              { icon: "🌙", label: "Bedtime", body: "Wind down with calm, soothing audio stories that ease children into sleep while feeding their curiosity. Our bedtime preset uses slower pacing and gentle voices." },
-              { icon: "📚", label: "School help", body: "Struggling with a topic from school? WonderCast can explain anything in plain language — from fractions to the water cycle — matched to your child's exact age and level." },
-            ].map(({ age, icon, label, body }) => (
-              <div key={label} className="rounded-[28px] border border-[#E7B05E]/30 bg-white/60 p-6 backdrop-blur">
-                {age && <span className="mb-2 block text-xs font-black uppercase tracking-widest text-[#A74921]">{age}</span>}
-                {icon && <span className="mb-2 block text-2xl">{icon}</span>}
-                <h3 className="mb-2 text-lg font-black text-[#1B203A]">{label}</h3>
-                <p className="text-sm font-medium leading-6 text-[#7F3E28]">{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section aria-labelledby="faq" className="mb-24">
-          <h2 id="faq" className="mb-3 text-center text-sm font-black uppercase tracking-[0.15em] text-[#A74921]">Frequently asked questions</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-3xl font-black leading-tight text-[#1B203A] sm:text-4xl">
-            Everything parents want to know
-          </p>
-          <div className="mx-auto max-w-3xl space-y-4">
-            {[
-              { q: "Is WonderCast safe for young children?", a: "Yes. WonderCast is built with child safety as the foundation. Every topic is checked against a child-safe content filter before any audio is generated. Age-appropriate language is enforced automatically — a 3-year-old's episode sounds nothing like a 14-year-old's. Sensitive, violent, or explicit topics are blocked entirely." },
-              { q: "What age group is WonderCast designed for?", a: "WonderCast is designed for children aged 3 to 16. You choose an age band (3–4, 5–6, 7–8, 9–10, 11–12, 13–14, or 15–16) and WonderCast automatically adjusts the vocabulary, episode length, learning depth, tone, and voice style to match." },
-              { q: "How does WonderCast generate audio episodes?", a: "WonderCast uses two AI systems: Claude (by Anthropic) to write a personalised, age-appropriate script based on your topic and settings, and ElevenLabs to convert that script into natural-sounding audio with a voice matched to the situation. The full process takes about 30–60 seconds." },
-              { q: "Can I use WonderCast for school topics?", a: "Absolutely. The 'School Help' situation preset is designed exactly for this. Type in a school topic — the water cycle, fractions, ancient Rome — and WonderCast will generate a clear, engaging explanation at the right level for your child's age. Great for reinforcing something they learned in class." },
-              { q: "Does WonderCast replace screen time?", a: "That's the goal. WonderCast is audio-only — there's nothing to watch. Children listen, imagine, and think. Research consistently shows that audio storytelling and narration supports language development, attention span, and imagination in ways that screen-based media often doesn't." },
-              { q: "How is WonderCast different from audiobooks or podcasts?", a: "Audiobooks and kids' podcasts are pre-made and fixed. WonderCast generates a brand new episode for your specific child, on any topic they're curious about, at their exact age level, in the right format for the moment — a bedtime story is nothing like a car-ride lesson. No other child gets the same episode." },
-              { q: "What topics can WonderCast cover?", a: "Almost anything age-appropriate — science, history, geography, nature, maths concepts, stories about kindness and emotions, travel destinations, animals, space, how things work, and more. Topics that are too complex, abstract, or sensitive are flagged with a suggestion to simplify before generating." },
-              { q: "Is WonderCast free to use?", a: "WonderCast is currently free. Create an episode by choosing your child's age, typing a topic, and pressing Create Audio." },
-            ].map(({ q, a }) => (
-              <details key={q} className="group rounded-2xl border border-[#E7B05E]/30 bg-white/60 backdrop-blur">
-                <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 font-black text-[#1B203A] marker:content-none">
-                  <span>{q}</span>
-                  <ChevronDown size={18} className="shrink-0 text-[#A74921] transition group-open:rotate-180" />
-                </summary>
-                <p className="px-5 pb-5 text-sm font-medium leading-7 text-[#7F3E28]">{a}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-[#E7B05E]/30 pt-12 text-center">
-          <div className="mb-4 flex items-center justify-center gap-3">
-            <img src="/logo.png" alt="WonderCast logo" className="size-10 rounded-xl" />
-            <span className="text-xl font-black text-[#1B203A]">WonderCast</span>
-          </div>
-          <p className="mx-auto max-w-md text-sm font-medium leading-6 text-[#7F3E28]">
-            Screen-free, AI-powered audio learning for curious kids aged 3–16. Personalised episodes on any topic, ready in seconds.
-          </p>
-          <p className="mt-6 text-xs font-medium text-[#A74921]/60">© {new Date().getFullYear()} WonderCast. Built for curious families.</p>
-        </footer>
-
-      </div>
-    </div>
-  );
-}
 
 function Tag({ children, dark = false }) {
   return (
