@@ -833,11 +833,16 @@ function CreateScreen({
             <AgeSelector value={settings.age} onChange={updateAge} />
           </div>
 
+          {/* Voice selector */}
+          <div className="mt-7">
+            <VoiceSelector value={settings.voiceStyle} onChange={(v) => updateSetting("voiceStyle", v)} />
+          </div>
+
           {/* Smart scroll hint — mobile only, disappears once topic typed or advanced opened */}
           {!settings.topic.trim() && !advancedOpen && (
             <div className="mt-4 flex items-center justify-center gap-1.5 lg:hidden">
               <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
-              <p className="text-xs font-semibold text-[#7F3E28]/70">Tune voice, tone &amp; more below</p>
+              <p className="text-xs font-semibold text-[#7F3E28]/70">Tune tone, length &amp; more below</p>
               <ChevronDown size={14} className="text-[#A74921]/60 animate-bounce" />
             </div>
           )}
@@ -858,7 +863,7 @@ function CreateScreen({
               onClick={onCreate}
             />
             <p className="mt-3 text-sm font-medium text-[#7F3E28]">
-              Format, length, voice and tone can be tuned below.
+              Format, length, tone and more can be tuned below.
             </p>
           </div>
         </div>
@@ -970,6 +975,78 @@ function HeroInput({ value, onChange, topicSafetyBlock, complexityCheck, complex
           </div>
         </motion.div>
       )}
+    </div>
+  );
+}
+
+const voiceProfiles = [
+  {
+    id: "Warm female voice",
+    emoji: "👩",
+    label: "Warm & Friendly",
+    description: "Nurturing, clear, reassuring",
+    bestFor: "All ages, bedtime",
+  },
+  {
+    id: "Warm male voice",
+    emoji: "👨",
+    label: "Warm & Steady",
+    description: "Calm, trustworthy, grounding",
+    bestFor: "Ages 7+, lessons",
+  },
+  {
+    id: "Animated storyteller",
+    emoji: "🎭",
+    label: "Storyteller",
+    description: "Expressive, playful, engaging",
+    bestFor: "Ages 3–10, stories",
+  },
+  {
+    id: "Calm narrator",
+    emoji: "🎙️",
+    label: "Calm Narrator",
+    description: "Soothing, measured, gentle",
+    bestFor: "Bedtime, relaxation",
+  },
+  {
+    id: "Teacher-style guide",
+    emoji: "🎓",
+    label: "Teacher",
+    description: "Clear, encouraging, structured",
+    bestFor: "Ages 10+, school help",
+  },
+];
+
+function VoiceSelector({ value, onChange }) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <div className="grid size-9 place-items-center rounded-xl bg-[#E7B05E]/30 text-[#A74921]">
+          <Volume2 size={17} />
+        </div>
+        <div>
+          <p className="font-black text-[#1B203A]">Narrator voice</p>
+          <p className="text-sm font-medium text-[#7F3E28]">Pick who tells the story.</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {voiceProfiles.map(({ id, emoji, label, description, bestFor }) => (
+          <button
+            key={id}
+            onClick={() => onChange(id)}
+            className={`flex flex-col items-center gap-1.5 rounded-2xl border p-3 text-center transition ${
+              value === id
+                ? "border-[#A74921] bg-[#A74921]/10 shadow-sm"
+                : "border-[#E7B05E]/40 bg-[#f5d8b8]/40 hover:bg-white"
+            }`}
+          >
+            <span className="text-2xl">{emoji}</span>
+            <span className={`text-xs font-black ${value === id ? "text-[#A74921]" : "text-[#1B203A]"}`}>{label}</span>
+            <span className="text-[10px] font-semibold leading-tight text-[#7F3E28]">{description}</span>
+            <span className={`mt-0.5 rounded-full px-2 py-0.5 text-[10px] font-black ${value === id ? "bg-[#A74921] text-white" : "bg-[#E7B05E]/30 text-[#7F3E28]"}`}>{bestFor}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1095,13 +1172,7 @@ function AdvancedControls({ settings, updateSetting, open, setOpen }) {
                 value={settings.tone}
                 onChange={(value) => updateSetting("tone", value)}
               />
-              <OptionPills
-                icon={Volume2}
-                title="Voice style"
-                options={voiceStyleOptions}
-                value={settings.voiceStyle}
-                onChange={(value) => updateSetting("voiceStyle", value)}
-              />
+
               <OptionPills
                 icon={Users}
                 title="Speaker setup"
